@@ -1,0 +1,11 @@
+.env
+__pycache__/
+.ipynb_checkpoints/
+hf_cache/
+transformers_cache/
+sentence_transformers_cache/
+elasticsearch_data/
+postgres_data/
+ollama_data/
+vectorized_documents.pkl
+.prefect

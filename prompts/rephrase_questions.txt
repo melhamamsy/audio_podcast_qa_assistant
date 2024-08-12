@@ -1,0 +1,13 @@
+I have a list of questions extracted from various episodes. 
+Each question is associated with an `episode_id`. 
+Your task is to check if each question is self-sufficient, meaning it has enough context to stand alone. 
+If a question is self-sufficient, rephrase it to convey the same meaning clearly. 
+If a question is not self-sufficient and lacks necessary context, 
+do not rephrase it nor return it, just skip it, be very strict in this point, the question needs to answerable on its own.
+
+Please return the results in a JSON format, with each question represented as a dictionary containing `episode_id` and `question` keys.
+
+IMPORTANT: Only return the dictionary without the fenced code block marks. Make sure to return double quotations not single quotations.
+
+Here is the list of questions:
+{episode_questions}
