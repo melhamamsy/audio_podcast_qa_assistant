@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.4.3
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    volumes:
+      - ./elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    environment:
+      - CHAT_MODEL=${CHAT_MODEL}
+      - EMBED_MODEL=${EMBED_MODEL}
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: streamlit
+    environment:
+      - ELASTIC_HOST=elasticsearch
+      - ELASTIC_PORT=${ELASTIC_PORT}
+      - ES_INDEX_NAME=${ES_INDEX_NAME}
+
+      - OLLAMA_HOST=ollama
+      - OLLAMA_PORT=${OLLAMA_PORT}
+      - CHAT_MODEL=${CHAT_MODEL}
+      - EMBED_MODEL=${EMBED_MODEL}
+
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+
+      - PROJECT_DIR=/app
+      - EVAL_MODEL=${EVAL_MODEL}
+    ports:
+      - "${STREAMLIT_PORT:-8501}:8501"
+    depends_on:
+      - elasticsearch
+      - ollama
+      - postgres
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+    depends_on:
+      - postgres
+
+volumes:
+  ollama_data:
+  postgres_data:
+  grafana_data:

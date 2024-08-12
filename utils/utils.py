@@ -73,17 +73,10 @@ def load_json_document(path):
         path (str): The path to the JSON file.
 
     Returns:
-        list: A list of documents with 'course' and other fields.
+        list: A list of documents with 'text' and meta fields.
     """
     with open(path, "rt", encoding="utf-8") as f_in:
-        docs_raw = json.load(f_in)
-    documents = []
-
-    for course_dict in docs_raw:
-        for doc in course_dict["documents"]:
-            doc["course"] = course_dict["course"]
-            documents.append(doc)
-
+        documents = json.load(f_in)
     return documents
 
 

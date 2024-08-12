@@ -35,24 +35,23 @@ def get_embedding(client, text, model_name="locusai/multi-qa-minilm-l6-cos-v1"):
     return client.embeddings.create(input=[text], model=model_name).data[0].embedding
 
 
-def embed_document(client, document, model_name):
+def embed_document(client, document, model_name="locusai/multi-qa-minilm-l6-cos-v1"):
     """
     Embed multiple documents using a specified model.
 
     Args:
         client: The client instance to use for generating embeddings.
-        documents (list): A list of documents where each document is
-        a dictionary containing 'question' and 'text' fields.
+        document (dict): A dictionary containing 'title' and 'text' fields.
         model_name (str): The name of the model to use for embedding.
 
     Returns:
-        list: A list of documents with added embeddings for 'text',
-        'question', and combined 'question_text' fields.
+        dict: A document with added embeddings for 
+        combined 'title_text' fields.
     """
-    qt = document["question"] + " " + document["text"]
+    titled_text = document["title"] + " " + document["text"]
 
-    document["question_text_vector"] = get_embedding(
-        client=client, text=qt, model_name=model_name
+    document["text_vector"] = get_embedding(
+        client=client, text=titled_text, model_name=model_name
     )
 
     return document

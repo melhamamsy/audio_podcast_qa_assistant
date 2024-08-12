@@ -1,0 +1,24 @@
+{
+    "settings": {
+        "number_of_shards": "1",
+        "number_of_replicas": "0"
+    },
+    "mappings": {
+        "properties": {
+            "id": {"type": "keyword"},
+            "chunk_id": {"type": "keyword"},
+            "channel": {"type": "keyword"},
+            "channel_id": {"type": "keyword"},
+            "title": {"type": "text"},
+            "categories": {"type": "keyword"},
+            "tags": {"type": "keyword"},
+            "text": {"type": "text"},
+            "text_vector": {
+                "type": "dense_vector",
+                "dims": "384",
+                "index": "true",
+                "similarity": "cosine"
+            }
+        }
+    }
+}
