@@ -3,6 +3,8 @@
 
 from openai import OpenAI
 import os
+from utils.utils import parse_json_response
+
 
 def create_openai_client(api_key=None):
     """

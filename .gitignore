@@ -9,3 +9,4 @@ postgres_data/
 ollama_data/
 vectorized_documents.pkl
 .prefect
+*.mp3

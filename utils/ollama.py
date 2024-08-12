@@ -6,7 +6,6 @@ The utility functions are used to:
     3. ...
 """
 
-from tqdm.auto import tqdm
 from openai import OpenAI
 
 

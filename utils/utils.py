@@ -6,10 +6,12 @@ finding, document ID generation, and JSON response parsing.
 """
 
 import hashlib
+import base64
 import json
 import os
 import re
 import time
+import numpy as np
 
 from dotenv import load_dotenv
 
@@ -144,6 +146,21 @@ def id_documents(docs):
     return docs
 
 
+def generate_text_based_uuid(text, uuid_len=11):
+    """
+    """
+    # Hash the text using SHA-256
+    hash_object = hashlib.sha256(text.encode('utf-8'))
+    
+    # Convert the hash to bytes
+    hash_bytes = hash_object.digest()
+    
+    # Encode the hash in base64 and strip padding, taking only the first 11 characters
+    short_uuid = base64.urlsafe_b64encode(hash_bytes).rstrip(b'=').decode('utf-8')[:uuid_len]
+    
+    return short_uuid
+
+
 def correct_json_string(input_string):
     """
     Correct JSON string by replacing single backslashes with
@@ -183,3 +200,47 @@ def sleep_seconds(total_wait_time, logging_interval=5):
     for remaining in range(total_wait_time, 0, -logging_interval):
         print(f"Time remaining: {remaining} seconds")
         time.sleep(logging_interval)
+
+
+def flatten_list_of_lists(list_of_lists):
+    """
+    """
+    return [item for sublist in list_of_lists for item in sublist]
+
+
+def sample_from_list(
+    orig_list,
+    sample_size=None,
+    seed=42,
+):
+    """
+    """
+    indices = np.arange(0, len(orig_list))
+    np.random.shuffle(indices)
+    
+    return list(np.array(orig_list)[indices])[:sample_size]
+
+
+def read_json_file(path):
+    """
+    """
+    with open(path, 'r') as file:
+        data = json.load(file)
+    return data
+
+
+def save_json_file(data, path, replace=False):
+    """
+    """
+    if not os.path.exists(path) or replace:
+        with open(path, 'w') as json_file:
+            json.dump(data, json_file, indent=4)
+            print(f"Data successfully saved to {path}")
+    else:
+        print("Skipped...")
+
+
+def standardize_array(array):
+    """
+    """
+    return (array - array.mean()) / array.std()

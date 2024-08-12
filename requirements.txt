@@ -21,3 +21,4 @@ datasets
 librosa
 soundfile
 spacy
+pydub
