@@ -32,3 +32,7 @@ class ModelNotCached(Exception):
 
 class WrongCliParams(Exception):
     """Ensure correct params passed to the script call."""
+
+
+class SetupWrongParam(Exception):
+    """Ensure correct env variables passed to the .env file."""

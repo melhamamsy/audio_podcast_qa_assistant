@@ -12,34 +12,34 @@ import time
 
 from exceptions.exceptions import (WrongPomptParams,
                                    ElasticsearchConnectionError)
-from utils.utils import (find_parameters, 
-                         is_sublist, parse_json_response)
+from utils.utils import (find_parameters, is_sublist, conf,
+                         parse_json_response, flatten_list_of_lists)
 from utils.elasticsearch import create_elasticsearch_client
 from utils.ollama import (create_ollama_client,
                           get_embedding)
 from utils.openai import create_openai_client
 
 
+
 ## Create clients
-try:
-    ES_CLIENT = create_elasticsearch_client(
-        host=os.getenv('ELASTIC_HOST'),
-        port=os.getenv('ELASTIC_PORT'),
-    )
-except ElasticsearchConnectionError:
-    ES_CLIENT = None
+CONF = conf()
+
+ES_CLIENT = create_elasticsearch_client(
+    host=os.getenv(f'ELASTIC{CONF}_HOST'),
+    port=os.getenv('ELASTIC_PORT'),
+)
 OLLAMA_CLIENT = create_ollama_client(
-    ollama_host=os.getenv('OLLAMA_HOST'),
+    ollama_host=os.getenv(f'OLLAMA{CONF}_HOST'),
     ollama_port=os.getenv('OLLAMA_PORT'),
 )
 OPENAI_CLIENT = create_openai_client()
 
 
 INDEX_NAME = os.getenv('ES_INDEX_NAME')
-PROJECT_DIR = os.getenv('PROJECT_DIR')
+PROJECT_DIR = os.getenv(f'PROJECT{CONF}_DIR')
 QA_PROMPT_TEMPLATE_PATH = os.path.join(
     PROJECT_DIR,
-    'prompts/course_qa.txt',
+    'prompts/podcast_qa.txt',
 )
 EVAL_PROMPT_TEMPLATE_PATH = os.path.join(
     PROJECT_DIR,
@@ -62,13 +62,13 @@ def build_context(search_results):
     for doc in search_results:
         context = (
             context
-            + f"section: {doc['section']}\nquestion: {doc['question']}\nanswer: {doc['text']}\n\n"
+            + f"title: {doc['title']}\ntags: {doc['tags']}\nanswer: {doc['text']}\n\n"
         )
 
     return context
 
 
-def build_prompt(prompt_template_path, **document_dict):
+def build_prompt(prompt_template_path=None, **document_dict):
     """
     Build a prompt from a template and document dictionary.
 
@@ -83,6 +83,9 @@ def build_prompt(prompt_template_path, **document_dict):
         WrongPomptParams: If the document dictionary does not
         match the expected parameters in the template.
     """
+    if not prompt_template_path:
+        prompt_template_path = QA_PROMPT_TEMPLATE_PATH
+
     with open(prompt_template_path, "r", encoding="utf-8") as f:
         prompt_template = f.read().strip()
 
@@ -99,20 +102,28 @@ def build_prompt(prompt_template_path, **document_dict):
     return prompt
 
 
-def elastic_search_text(query, course):
+def elastic_search_text(query, title_query):
     """
     """
     search_query = {
+        "_source": ["text", "title", "tags", "chunk_id", "id"],
         "query": {
             "bool": {
                 "must": {
                     "multi_match": {
                         "query": query,
-                        "fields": ["question^3", "text", "section"],
+                        "fields": ["text", "title"],
                         "type": "best_fields",
                     }
                 },
-                "filter": {"term": {"course": course}},
+                "filter": {
+                    "match": {
+                        "title": {
+                            "query": title_query,
+                            "fuzziness": "AUTO"
+                        }
+                    }
+                },
             }
         },
     }
@@ -127,21 +138,28 @@ def elastic_search_text(query, course):
 
 
 def elastic_search_knn(
-    query_vector, course
+    query_vector, title_query
 ):
     """
     """
     knn = {
-        "field": "question_text_vector",
+        "field": "text_vector",
         "query_vector": query_vector,
         "k": 5,
         "num_candidates": 10_000,
-        "filter": {"term": {"course": course}},
+        "filter": {
+            "match": {
+                "title": {
+                    "query": title_query,
+                    "fuzziness": "AUTO"
+                }
+            }
+        },
     }
 
     search_query = {
         "knn": knn,
-        "_source": ["text", "section", "question", "course", "id"],
+        "_source": ["text", "title", "tags", "chunk_id", "id"],
     }
 
     responses = ES_CLIENT.search(
@@ -210,18 +228,23 @@ def calculate_openai_cost(model_choice, tokens):
     return openai_cost
 
 
-def get_answer(query, course, model_choice, search_type):
+def get_answer(query, title_query, model_choice, search_type):
     """
     """
     if search_type == 'Vector':
         query_vector = get_embedding(
             client=OLLAMA_CLIENT, 
             text=query, 
-            model_name="locusai/multi-qa-minilm-l6-cos-v1",
+            model_name=os.getenv('EMBED_MODEL', 'locusai/multi-qa-minilm-l6-cos-v1'),
         )
-        search_results = elastic_search_knn(query_vector, course)
+        search_results = elastic_search_knn(query_vector, title_query)
     elif search_type == 'Text':
-        search_results = elastic_search_text(query, course)
+        search_results = elastic_search_text(query, title_query)
+
+    tags = "#" + "; #".join(
+        set(flatten_list_of_lists([doc['tags'] for doc in search_results]))
+    )
+    titles = set([doc['title'] for doc in search_results])
 
     context = build_context(search_results)
     document_dict = {"question": query, "context": context}
@@ -242,6 +265,8 @@ def get_answer(query, course, model_choice, search_type):
  
     return {
         'answer': answer,
+        'tags': tags,
+        'title': titles,
         'response_time': response_time,
         'relevance': relevance,
         'relevance_explanation': explanation,

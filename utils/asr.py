@@ -7,6 +7,9 @@ import os
 from scipy.signal import resample
 import re
 from tqdm.auto import tqdm
+from transformers import WhisperProcessor, WhisperForConditionalGeneration
+from utils.utils import (save_json_file, read_json_file,
+                         get_json_files_in_dir)
 
 
 def read_mp3(path):
@@ -28,10 +31,12 @@ def read_mp3(path):
     return samples, sampling_rate
 
 
-## sample minutes of audio
 def sample_audio(
     audio_dict, start_from=None, minutes=None
 ):
+    """
+    sample minutes of audio
+    """
     audio = audio_dict['array']
     sampling_rate = audio_dict['sampling_rate']
     
@@ -40,13 +45,16 @@ def sample_audio(
         
     return audio[start_from:up_to]
 
-## Change sampling_rate
+
 def update_sampling_rate(audio_data, original_rate, target_rate):
+    """
+    Change sampling_rate
+    """
     num_samples = round(len(audio_data) * float(target_rate) / original_rate)
     resampled_audio = resample(audio_data, num_samples)
     return resampled_audio
 
-## Transcripe audio
+
 def transcripe_audio(
     audio,
     processor,
@@ -54,6 +62,9 @@ def transcripe_audio(
     sampling_rate=16_000,
     skip_special_tokens=True,
 ):
+    """
+    Transcripe audio
+    """
     input_features = processor(
         audio, sampling_rate=sampling_rate, return_tensors="pt"
     ).input_features
@@ -99,7 +110,6 @@ def merge_transcripts(transcripts):
     return merged_transcript
 
 
-## Transcripe full episode
 def transcripe_episode(
     episode,
     processor,
@@ -107,6 +117,9 @@ def transcripe_episode(
     skip_special_tokens=True,
     **sampling_kwargs,
 ):
+    """
+    Transcripe full episode
+    """
     minutes=sampling_kwargs.get('minutes', 2)
     target_sampling_rate=sampling_kwargs.get('target_sampling_rate', 16_000)
     
@@ -135,12 +148,52 @@ def transcripe_episode(
     return merge_transcripts(transcripts_list)
 
 
-def get_resuming_index(data_dir):
-    filenames = os.listdir(data_dir)
-    
-    if not filenames:
-        return 0
-    
-    return max([
-        int(filename.split('.')[0][2:]) for filename in filenames
-    ]) + 1
+def transcripe_and_cache_episodes(model, processor, dataset, transcripts_cache_dir=None):
+    """
+    """
+    cached_episodes = get_json_files_in_dir(transcripts_cache_dir)
+
+    for i in tqdm(range(0, len(dataset))):
+        episode = dataset[i]
+        episode_title = episode['title'].split(" | ")[0]
+
+        if episode_title not in cached_episodes:
+            episode['text'] = transcripe_episode(
+                episode=episode['audio'],
+                processor=processor,
+                model=model,
+                skip_special_tokens=True,
+                minutes=0.4, ## due to model output constraint
+                target_sampling_rate=16_000,
+            )
+            
+            ## cache
+            if transcripts_cache_dir:
+                del episode['audio']
+                path = os.path.join(
+                    transcripts_cache_dir,
+                    episode_title + ".json",
+                )
+                save_json_file(episode, path)
+
+
+def load_cached_episodes(transcripts_cache_dir):
+    """
+    """
+    dataset = []
+    for path in get_json_files_in_dir(transcripts_cache_dir, return_full_path=True):   
+        dataset.append(read_json_file(path))
+        
+    return dataset
+
+
+def create_whisper_processor_and_model(asr_model_name=None, cache_dir=None):
+    """
+    """       
+    processor = WhisperProcessor.from_pretrained(
+        asr_model_name, cache_dir=cache_dir)
+    model = WhisperForConditionalGeneration.from_pretrained(
+        asr_model_name, cache_dir=cache_dir)
+    model.config.forced_decoder_ids = None
+
+    return processor, model

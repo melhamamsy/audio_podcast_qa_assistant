@@ -9,11 +9,14 @@ import hashlib
 import base64
 import json
 import os
+import glob
 import re
 import time
 import numpy as np
 
 from dotenv import load_dotenv
+from exceptions.exceptions import SetupWrongParam
+from datasets import load_dataset
 
 
 def find_parameters(text):
@@ -78,6 +81,16 @@ def load_json_document(path):
     with open(path, "rt", encoding="utf-8") as f_in:
         documents = json.load(f_in)
     return documents
+
+
+def load_podcast_data(name=None, cache_dir=None):
+    """
+    """
+    return load_dataset(
+        name, 
+        cache_dir=cache_dir,
+        ignore_verifications=True
+    )['train']
 
 
 def find_duplicates(lst):
@@ -217,8 +230,12 @@ def sample_from_list(
 def read_json_file(path):
     """
     """
-    with open(path, 'r') as file:
-        data = json.load(file)
+    if os.path.exists(path):
+        with open(path, 'r') as file:
+            data = json.load(file)
+    else:
+        print("File doesn't exist, returning None...")
+        data = None
     return data
 
 
@@ -233,7 +250,35 @@ def save_json_file(data, path, replace=False):
         print("Skipped...")
 
 
+def get_json_files_in_dir(dir_path=None, return_full_path=False):
+    """
+    """
+    if not dir_path:
+        return []
+
+    json_files = glob.glob(
+        os.path.join(dir_path, '*.json')
+    )
+
+    if return_full_path:
+        return json_files
+    else:
+        return [json_file.split('/')[-1] for json_file in json_files]
+
+
 def standardize_array(array):
     """
     """
     return (array - array.mean()) / array.std()
+
+
+def conf():
+    if os.getenv('IS_SETUP') == "true":
+        conf = '_SETUP'
+    elif os.getenv('IS_SETUP') == "false":
+        conf = ''
+    else:
+        raise SetupWrongParam(
+            "'IS_SETUP' env variable must be either 'true' of 'false'")
+    
+    return conf
