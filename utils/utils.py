@@ -16,7 +16,12 @@ import numpy as np
 
 from dotenv import load_dotenv
 from exceptions.exceptions import SetupWrongParam
-from datasets import load_dataset
+
+
+def print_log(*message):
+    """
+    """
+    print(*message, flush=True)
 
 
 def find_parameters(text):
@@ -81,16 +86,6 @@ def load_json_document(path):
     with open(path, "rt", encoding="utf-8") as f_in:
         documents = json.load(f_in)
     return documents
-
-
-def load_podcast_data(name=None, cache_dir=None):
-    """
-    """
-    return load_dataset(
-        name, 
-        cache_dir=cache_dir,
-        ignore_verifications=True
-    )['train']
 
 
 def find_duplicates(lst):

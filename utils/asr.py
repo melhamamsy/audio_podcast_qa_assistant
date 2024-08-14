@@ -7,7 +7,6 @@ import os
 from scipy.signal import resample
 import re
 from tqdm.auto import tqdm
-from transformers import WhisperProcessor, WhisperForConditionalGeneration
 from utils.utils import (save_json_file, read_json_file,
                          get_json_files_in_dir)
 
@@ -146,54 +145,3 @@ def transcripe_episode(
             audio, processor, model, target_sampling_rate, skip_special_tokens)
     
     return merge_transcripts(transcripts_list)
-
-
-def transcripe_and_cache_episodes(model, processor, dataset, transcripts_cache_dir=None):
-    """
-    """
-    cached_episodes = get_json_files_in_dir(transcripts_cache_dir)
-
-    for i in tqdm(range(0, len(dataset))):
-        episode = dataset[i]
-        episode_title = episode['title'].split(" | ")[0]
-
-        if episode_title not in cached_episodes:
-            episode['text'] = transcripe_episode(
-                episode=episode['audio'],
-                processor=processor,
-                model=model,
-                skip_special_tokens=True,
-                minutes=0.4, ## due to model output constraint
-                target_sampling_rate=16_000,
-            )
-            
-            ## cache
-            if transcripts_cache_dir:
-                del episode['audio']
-                path = os.path.join(
-                    transcripts_cache_dir,
-                    episode_title + ".json",
-                )
-                save_json_file(episode, path)
-
-
-def load_cached_episodes(transcripts_cache_dir):
-    """
-    """
-    dataset = []
-    for path in get_json_files_in_dir(transcripts_cache_dir, return_full_path=True):   
-        dataset.append(read_json_file(path))
-        
-    return dataset
-
-
-def create_whisper_processor_and_model(asr_model_name=None, cache_dir=None):
-    """
-    """       
-    processor = WhisperProcessor.from_pretrained(
-        asr_model_name, cache_dir=cache_dir)
-    model = WhisperForConditionalGeneration.from_pretrained(
-        asr_model_name, cache_dir=cache_dir)
-    model.config.forced_decoder_ids = None
-
-    return processor, model

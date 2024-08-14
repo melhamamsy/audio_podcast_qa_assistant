@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 
 # Task 1: Check if bucket directory contains new data (directories only) and update state
-@task
 def check_for_new_data(bucket_dir):
     state_file_path = Path(bucket_dir) / "bucket_state.json"
     
@@ -36,19 +35,22 @@ def check_for_new_data(bucket_dir):
         return False
 
 # Task 2: Run if new directories are found
-@task
 def process_new_data():
     print("Processing new data...")
 
 # Flow definition using the flow decorator
 @flow
 def check_and_process_flow(bucket_dir):
-    data_check = check_for_new_data(bucket_dir)
+    data_check = task(check_for_new_data, log_prints=True)(bucket_dir)
     
     # Process new data if the check_for_new_data task succeeded
     if data_check:
-        process_new_data()
+        task(process_new_data, log_prints=True)()
+
+def dummy_flow():
+    print("Hola from dummy flow!!")
 
 # Run the flow
 if __name__ == "__main__":
     check_and_process_flow("bucket")
+    flow(dummy_flow, log_prints=True)()

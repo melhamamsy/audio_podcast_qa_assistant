@@ -42,16 +42,16 @@ services:
       dockerfile: Dockerfile
     container_name: streamlit
     environment:
-      - ELASTIC_HOST=elasticsearch
+      - ELASTIC_HOST=${ELASTIC_HOST}
       - ELASTIC_PORT=${ELASTIC_PORT}
       - ES_INDEX_NAME=${ES_INDEX_NAME}
 
-      - OLLAMA_HOST=ollama
+      - OLLAMA_HOST=${OLLAMA_HOST}
       - OLLAMA_PORT=${OLLAMA_PORT}
       - CHAT_MODEL=${CHAT_MODEL}
       - EMBED_MODEL=${EMBED_MODEL}
 
-      - POSTGRES_HOST=postgres
+      - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -59,7 +59,7 @@ services:
 
       - OPENAI_API_KEY=${OPENAI_API_KEY}
 
-      - PROJECT_DIR=/app
+      - PROJECT_DIR=${PROJECT_DIR}
       - EVAL_MODEL=${EVAL_MODEL}
     ports:
       - "${STREAMLIT_PORT:-8501}:8501"

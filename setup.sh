@@ -4,6 +4,8 @@
 # Default params values
 reindex_es="false"
 reinit_db="false"
+defacto="true"
+reinit_prefect="false"
 
 # Modify with your preferred models
 CHAT_MODEL=phi3
@@ -42,22 +44,28 @@ do
         fi
         shift # remove the current param from the list
         ;;
+        defacto=*)
+        defacto="${param#*=}"
+        if [[ "$defacto" != "true" && "$defacto" != "false" ]]; then
+            echo "Invalid value for x: $defacto. Must be 'true' or 'false'."
+            exit 1
+        fi
+        shift # remove the current param from the list
+        ;;
+        reinit_prefect=*)
+        reinit_prefect="${param#*=}"
+        if [[ "$reinit_prefect" != "true" && "$reinit_prefect" != "false" ]]; then
+            echo "Invalid value for x: $reinit_prefect. Must be 'true' or 'false'."
+            exit 1
+        fi
+        shift # remove the current param from the list
+        ;;
         *)
-        echo "Invalid parameter: $param, you can only use reinit_db and/or reindex_es or leave plank."
+        echo "Invalid parameter: $param, you can only use reinit_db, reindex_es, defacto, or leave plank."
         exit 1
         ;;
     esac
 done
-
-
-# # Instead of scripting docker-compose up (as you may need to download the images)
-# # docker-compose up on a terminal and wait till the services are up and running
-# # you can use `docker ps` to verify. Afterwards ./setup.sh
-# # Bring up Docker Compose
-# docker-compose up -d
-# # Wait for the containers to be fully up and running
-# # Adjust the sleep duration if necessary
-# sleep 30
 
 # Execute commands inside the ollama container
 echo "Checking olama models..."
@@ -150,7 +158,37 @@ docker-compose exec -e CHAT_MODEL="$CHAT_MODEL" -e EMBED_MODEL="$EMBED_MODEL" ol
   done
 '
 
+
+# Execute in postgres database: Create prefect db if not exists
+if [ "$reinit_prefect" == "true" ]; then
+  echoo "Reinitializing 'prefect' database..."
+  docker-compose exec postgres bash -c "
+    psql -U postgres -d \$POSTGRES_DB -tc \"
+      DROP DATABASE IF EXISTS prefect;
+    \"
+  "
+fi
+docker-compose exec postgres bash -c "
+  psql -U postgres -d \$POSTGRES_DB -tc \"
+    SELECT 1 FROM pg_database WHERE datname = 'prefect'
+  \" | grep -q 1 || psql -U postgres -d \$POSTGRES_DB -c \"
+    CREATE DATABASE prefect;
+  \"
+"
+echoo "Created 'prefect' database, or already exists."
+
+
 # Activate the conda environment and run setup.py
 source activate dtc-llm-env
+
+
+# Start prefect server
+prefect profile use local-server
+prefect server start &
+sleep 5
+
 echoo "Setting up postgres & es..."
-python setup.py --reindex_es "$reindex_es" --reinit_db "$reinit_db"
+python setup.py \
+    --reindex_es "$reindex_es" \
+    --reinit_db "$reinit_db" \
+    --defacto "$defacto"

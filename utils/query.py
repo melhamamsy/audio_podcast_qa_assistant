@@ -10,40 +10,18 @@ import os
 import json
 import time
 
-from exceptions.exceptions import (WrongPomptParams,
-                                   ElasticsearchConnectionError)
-from utils.utils import (find_parameters, is_sublist, conf,
-                         parse_json_response, flatten_list_of_lists)
-from utils.elasticsearch import create_elasticsearch_client
-from utils.ollama import (create_ollama_client,
-                          get_embedding)
-from utils.openai import create_openai_client
-
-
-
-## Create clients
-CONF = conf()
-
-ES_CLIENT = create_elasticsearch_client(
-    host=os.getenv(f'ELASTIC{CONF}_HOST'),
-    port=os.getenv('ELASTIC_PORT'),
-)
-OLLAMA_CLIENT = create_ollama_client(
-    ollama_host=os.getenv(f'OLLAMA{CONF}_HOST'),
-    ollama_port=os.getenv('OLLAMA_PORT'),
-)
-OPENAI_CLIENT = create_openai_client()
-
-
-INDEX_NAME = os.getenv('ES_INDEX_NAME')
-PROJECT_DIR = os.getenv(f'PROJECT{CONF}_DIR')
-QA_PROMPT_TEMPLATE_PATH = os.path.join(
-    PROJECT_DIR,
-    'prompts/podcast_qa.txt',
-)
-EVAL_PROMPT_TEMPLATE_PATH = os.path.join(
-    PROJECT_DIR,
-    'prompts/llm_as_a_judge.txt',
+from exceptions.exceptions import WrongPomptParams
+from utils.utils import (find_parameters, is_sublist,
+                         parse_json_response, flatten_list_of_lists,
+                         )
+from utils.ollama import get_embedding
+from utils.variables import (
+    ES_CLIENT,
+    OLLAMA_CLIENT,
+    OPENAI_CLIENT,
+    INDEX_NAME,
+    QA_PROMPT_TEMPLATE_PATH,
+    EVAL_PROMPT_TEMPLATE_PATH,
 )
 
 
