@@ -2,10 +2,13 @@
 """
 
 import os
+import json
+from pathlib import Path
 import pickle
 from tqdm.auto import tqdm
 from utils.utils import (print_log, get_json_files_in_dir,
                          read_json_file, save_json_file,
+                         standardize_array,
                          )
 from utils.chunking import (chunk_large_text,
                             preindex_process_text)
@@ -20,19 +23,19 @@ from utils.elasticsearch import (remove_elasticsearch_index,
                                  get_indexed_documents_count)
 from utils.ollama import embed_document
 from utils.asr import transcripe_episode
+from utils.asr import read_mp3
 from datasets import load_dataset, Dataset
 from utils.multithread import map_progress
 from transformers import (WhisperProcessor,
                           WhisperForConditionalGeneration)
 from utils.variables import (PROJECT_DIR, ES_CLIENT,
                              INDEX_NAME, INDEX_SETTINGS_PATH,
-                             EXPECTED_MAPPING,
+                             EXPECTED_MAPPING, CACHE_DIR,
                              )
 
 
-def load_podcast_data(name,
-                      cache_dir,
-                      defacto=True
+def load_podcast_data(new_episodes_dirs=None,
+                      defacto=True,
                       ):
     """
     """
@@ -40,11 +43,31 @@ def load_podcast_data(name,
         print_log("load_podcast_data: Defacto mode is on ...")
         return None
 
-    return load_dataset(
-        name, 
-        cache_dir=cache_dir,
-        ignore_verifications=True
-    )['train']
+    if new_episodes_dirs:
+        dataset = []
+        for dir in new_episodes_dirs:
+            audio, sampling_rate = read_mp3(
+                os.path.join(PROJECT_DIR, f"bucket/{dir}/episode.mp3")
+            )
+            audio = standardize_array(audio)
+
+            episode = read_json_file(
+                os.path.join(PROJECT_DIR, f"bucket/{dir}/metadata.json")
+            )
+            episode['audio'] = {
+                'array':audio,
+                'sampling_rate':sampling_rate,
+            }
+
+            dataset.append(episode)
+
+        return dataset
+    else:
+        return load_dataset(
+            name=os.getenv('PODCAST_DATASET'), 
+            cache_dir=CACHE_DIR,
+            ignore_verifications=True
+        )['train']
 
 
 def create_whisper_processor_and_model(asr_model_name=None,
@@ -207,4 +230,53 @@ def index_documents_es(ollama_client, es_client, index_name, documents):
         )
     else:
         print(f"Index {index_name} already has {len(documents)} documents")
+
+
+def check_for_new_data(bucket_dir):
+    """
+    """
+    state_file_path = Path(bucket_dir) / "bucket_state.json"
+    new_dirs = []
+    
+    # Load existing state if it exists, otherwise initialize an empty state
+    if state_file_path.exists():
+        with open(state_file_path, 'r') as f:
+            state = json.load(f)
+    else:
+        state = {"tracked_directories": []}
+    
+    # List directories in the bucket directory
+    directories = [d for d in os.listdir(bucket_dir) if os.path.isdir(Path(bucket_dir) / d)]
+    
+    # Check if new directories are present by comparing with tracked directories
+    new_data = False
+    for directory in directories:
+        if directory not in state["tracked_directories"]:
+            new_data = True
+            state["tracked_directories"].append(directory)
+            new_dirs.append(directory)
+            print(f"New directory found: {directory}")
+    
+    if new_data:
+        return new_dirs
+    else:
+        print("No new directories found.")
+        return None
+
+
+def update_bucket_state(bucket_dir, new_dirs=[]):
+    """
+    """
+    state_file_path = Path(bucket_dir) / "bucket_state.json"
         
+    if state_file_path.exists():
+        with open(state_file_path, 'r') as f:
+            state = json.load(f)
+    else:
+        state = {"tracked_directories": []}
+
+    state["tracked_directories"] += new_dirs
+    with open(state_file_path, 'w') as f:
+        json.dump(state, f, indent=4)
+
+    print("Updated Bucket state for newly indexed documents.")

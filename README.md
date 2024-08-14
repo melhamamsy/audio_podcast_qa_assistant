@@ -1,8 +1,5 @@
 <!-- pgcli postgresql://postgres:example@localhost:5432/lex_fridman_podcast -->
 
-pgcli postgresql://postgres:example@localhost:5432 \
-    -c "CREATE DATABASE lex_fridman_podcast; CREATE DATABASE prefect;"
-
 ### Needed for Chunking
 ```python -m spacy download en_core_web_sm```
 
@@ -27,8 +24,14 @@ To indicate tracked directories for orchestration to decide if there are new epi
     cd path/to/project
     docker-compose up postgres ollama elasticsearch #grafana
     ./setup.sh reinit_db="true" reindex_es="false" defacto="true" reinit_prefect="false"
+
+    # make sure env variables are exported from .env
+    ## if not: > export $(grep -v '^#' .env | xargs)
+    prefect worker start --pool "$WORK_POOL_NAME" 
 ```
 
 ## DO NOT FORGET TO
+```
 kill $(ps aux | grep "prefect server" | grep -v grep | awk '{print $2}')
 docker-compose down
+```

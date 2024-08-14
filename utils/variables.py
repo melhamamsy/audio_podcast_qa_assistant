@@ -50,3 +50,5 @@ EXPECTED_MAPPING = [
     'id', 'chunk_id', 'channel', 'channel_id', 'title',
     'categories', 'tags', 'text', 'text_vector'
 ]
+
+WORK_POOL_NAME = os.getenv('WORK_POOL_NAME')

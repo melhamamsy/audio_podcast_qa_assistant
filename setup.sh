@@ -24,6 +24,10 @@ echoo() {
 cd "$(dirname "$0")"
 
 
+# Initialize env variables
+export $(grep -v '^#' .env | xargs)
+
+
 # Check passed params
 for param in "$@"
 do
@@ -183,12 +187,23 @@ source activate dtc-llm-env
 
 
 # Start prefect server
-prefect profile use local-server
 prefect server start &
 sleep 5
+prefect profile use local-server
+if ! prefect work-pool ls | grep -q "$WORK_POOL_NAME"; then
+  prefect work-pool create "$WORK_POOL_NAME" --type process
+  echo "Work pool \"$WORK_POOL_NAME\" created."
+else
+  echo "Work pool \"$WORK_POOL_NAME\" already exists."
+fi
 
+
+# Prefect Tasks
 echoo "Setting up postgres & es..."
 python setup.py \
     --reindex_es "$reindex_es" \
     --reinit_db "$reinit_db" \
-    --defacto "$defacto"
+    --defacto "$defacto" \
+    --reinit_prefect "$reinit_prefect"
+
+prefect deployment run

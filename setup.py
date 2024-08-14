@@ -8,13 +8,17 @@ from utils.tasks import (load_podcast_data,
                          chunk_episodes,
                          init_es,
                          index_documents_es,
+                         check_for_new_data,
+                         update_bucket_state,
                          )
 from utils.variables import (PROJECT_DIR, CACHE_DIR,
                              ES_CLIENT, OLLAMA_CLIENT,
-                             INDEX_NAME
+                             INDEX_NAME, WORK_POOL_NAME
                              )
 from utils.postgres import init_db
 from prefect import task, flow
+from prefect.deployments import Deployment
+from prefect.client.schemas.schedules import CronSchedule
 
 
 def parse_cli_args():
@@ -24,6 +28,7 @@ def parse_cli_args():
     parser.add_argument('--reindex_es', type=str, required=False, help='Value of reindex_es')
     parser.add_argument('--reinit_db', type=str, required=False, help='Value of reinit_db')
     parser.add_argument('--defacto', type=str, required=False, help='Value of defacto')
+    parser.add_argument('--reinit_prefect', type=str, required=False, help='Value of reinit_prefect')
     args = parser.parse_args()
 
     assert args.reindex_es in ["true", "false", None],\
@@ -32,16 +37,20 @@ def parse_cli_args():
         "'reinit_db' must be either 'true', 'false', or left blank"
     assert args.defacto in ["true", "false", None],\
         "'defacto' must be either 'true', 'false', or left blank"
+    assert args.reinit_prefect in ["true", "false", None],\
+        "'reinit_prefect' must be either 'true', 'false', or left blank"
 
     reindex_es = True if args.reindex_es == "true" else False
     reinit_db = True if args.reinit_db == "true" else False
     defacto = False if args.defacto == "false" else True
+    reinit_prefect = True if args.reinit_prefect == "true" else False
 
 
-    return reindex_es, reinit_db, defacto
+    return reindex_es, reinit_db, defacto, reinit_prefect
 
-@flow(log_prints=True)
-def setup_es(reindex_es=False, defacto=True):
+
+@flow(name="setup_es" ,log_prints=True)
+def setup_es(reindex_es=False, defacto=True, new_episodes_dirs=None):
     """Setup ElasticSearch Index.
     """
 
@@ -52,8 +61,7 @@ def setup_es(reindex_es=False, defacto=True):
 
     ## ============> Loading Podcasts
     dataset = task(load_podcast_data, log_prints=True)(
-        name=os.getenv('PODCAST_DATASET'),
-        cache_dir=CACHE_DIR,
+        new_episodes_dirs=new_episodes_dirs,
         defacto=defacto,
         )
     print_log("============> Loading Podcasts: Done.")
@@ -98,9 +106,65 @@ def setup_es(reindex_es=False, defacto=True):
     print_log("============> Indexing Documents in ES: Done.")
 
 
-if __name__ == "__main__":
-    reindex_es, reinit_db, defacto = parse_cli_args()
-    
-    setup_es(reindex_es, defacto)
+@flow(name="process_new_episodes" ,log_prints=True)
+def process_new_episodes(bucket_dir):
 
-    flow(init_db, log_prints=True)(reinit_db)
+    new_dirs = task(check_for_new_data, log_prints=True)(bucket_dir)
+        
+    # Process new data if the check_for_new_data task succeeded
+    if new_dirs:
+        params = {
+            "reindex_es": False,
+            "defacto": False,
+            "new_episodes_dirs": new_dirs,
+        }
+
+        # Run the flow with parameters
+        setup_es.run(parameters=params)
+
+        task(update_bucket_state, log_prints=True)(bucket_dir, new_dirs)
+    else:
+        print("Found no new episodes, nothing to do...")
+
+
+if __name__ == "__main__":
+    """
+    """
+    reindex_es, reinit_db, defacto, reinit_prefect = parse_cli_args()
+    
+    # Creating deployments for the flows
+    if reinit_prefect:
+        print_log(
+            "Re-deploying prefect flows ...")
+
+        deployment_setup_es = Deployment.build_from_flow(
+            flow=setup_es,
+            name="ad-hoc",
+            work_pool_name=WORK_POOL_NAME,
+            parameters={"reindex_es": reindex_es, "defacto": defacto},
+        )
+
+        deployment_init_db = Deployment.build_from_flow(
+            flow=flow(init_db, name="init_db" ,log_prints=True),
+            name="ad-hoc",
+            work_pool_name=WORK_POOL_NAME,
+            parameters={"reinit_db": reinit_db},
+        )
+
+        deployment_process_new_episodes = Deployment.build_from_flow(
+            flow=process_new_episodes,
+            name="midnight-every-sunday",
+            work_pool_name=WORK_POOL_NAME,
+            parameters={
+                "bucket_dir": os.path.join(PROJECT_DIR, "bucket")
+            },
+            schedules = [CronSchedule(cron="0 0 * * 0")],
+        )
+
+        # Apply the deployments
+        deployment_setup_es.apply()
+        deployment_init_db.apply()
+        deployment_process_new_episodes.apply()
+    else:
+        print("'reinit_prefect' is set to 'False', no need to redeploy ...")
+
