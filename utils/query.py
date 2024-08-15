@@ -93,18 +93,20 @@ def elastic_search_text(query, title_query):
                         "fields": ["text", "title"],
                         "type": "best_fields",
                     }
-                },
-                "filter": {
-                    "match": {
-                        "title": {
-                            "query": title_query,
-                            "fuzziness": "AUTO"
-                        }
-                    }
-                },
+                }
             }
         },
     }
+
+    if title_query:
+        search_query["query"]["bool"]["filter"] = {
+            "match": {
+                "title": {
+                    "query": title_query,
+                    "fuzziness": "AUTO"
+                }
+            }
+        }
 
     responses = ES_CLIENT.search(
         index=INDEX_NAME,
@@ -125,15 +127,17 @@ def elastic_search_knn(
         "query_vector": query_vector,
         "k": 5,
         "num_candidates": 10_000,
-        "filter": {
+    }
+
+    if title_query:
+        knn["filter"] = {
             "match": {
                 "title": {
                     "query": title_query,
                     "fuzziness": "AUTO"
                 }
             }
-        },
-    }
+        }
 
     search_query = {
         "knn": knn,
@@ -244,7 +248,7 @@ def get_answer(query, title_query, model_choice, search_type):
     return {
         'answer': answer,
         'tags': tags,
-        'title': titles,
+        'titles': titles,
         'response_time': response_time,
         'relevance': relevance,
         'relevance_explanation': explanation,

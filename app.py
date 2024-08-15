@@ -47,7 +47,7 @@ def main():
 
     if st.button("Submit"):
         print_log(f"User submitted question: {user_input}")
-
+        st.session_state.question_id = str(uuid.uuid4())
         with st.spinner('Processing...'):
             print_log(f"Getting answer from assistant using {model_choice} model and {search_type} search")
             start_time = time.time()
@@ -70,7 +70,9 @@ def main():
 
             # Save conversation to database
             print_log("Saving conversation to database")
-            save_conversation(st.session_state.conversation_id, user_input, answer_data, title_query)
+            save_conversation(st.session_state.conversation_id, 
+                              st.session_state.question_id, user_input, answer_data,
+                              )
             print_log("Conversation saved successfully")
 
         st.write(f"Question submitted: {user_input}")
@@ -83,7 +85,7 @@ def main():
             st.session_state.count += 1
             print_log(f"Positive feedback received. New count: {st.session_state.count}")
 
-            save_feedback(st.session_state.conversation_id, 1)
+            save_feedback(st.session_state.conversation_id, st.session_state.question_id, 1)
             print_log("Positive feedback saved to database")
 
             st.rerun()
@@ -93,7 +95,7 @@ def main():
             st.session_state.count -= 1
             print_log(f"Negative feedback received. New count: {st.session_state.count}")
 
-            save_feedback(st.session_state.conversation_id, -1)
+            save_feedback(st.session_state.conversation_id, st.session_state.question_id, -1)
             print_log("Negative feedback saved to database")
             
             st.rerun()

@@ -61,6 +61,8 @@ services:
 
       - PROJECT_DIR=${PROJECT_DIR}
       - EVAL_MODEL=${EVAL_MODEL}
+
+      - IS_SETUP=false
     ports:
       - "${STREAMLIT_PORT:-8501}:8501"
     depends_on:

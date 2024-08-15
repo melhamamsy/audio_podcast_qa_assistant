@@ -18,16 +18,27 @@ To indicate tracked directories for orchestration to decide if there are new epi
 ## Prefect conf
 ~/.prefect/profiles.toml
 
-
 ## Setup
 ```
     cd path/to/project
     docker-compose up postgres ollama elasticsearch #grafana
-    ./setup.sh reinit_db="true" reindex_es="false" defacto="true" reinit_prefect="false"
+    ./setup.shreindex_es="false" defacto="true" reinit_prefect=true"
 
     # make sure env variables are exported from .env
     ## if not: > export $(grep -v '^#' .env | xargs)
     prefect worker start --pool "$WORK_POOL_NAME" 
+```
+
+## ad-hoc
+```
+    prefect deployment run init_db/ad-hoc -p reinit_db=true
+```
+
+## Weekly Pipeline
+```
+    prefect deployment ls
+    prefect deployment run process_new_episodes/midnight-every-sunday #Run once for testing
+    ## go to: http://127.0.0.1:4200/flow-runs
 ```
 
 ## DO NOT FORGET TO

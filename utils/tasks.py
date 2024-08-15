@@ -205,10 +205,11 @@ def init_es(reindex_es=False):
         print(f"Index {INDEX_NAME} is already created.")
 
 
-def index_documents_es(ollama_client, es_client, index_name, documents):
+def index_documents_es(ollama_client, es_client, index_name, documents, is_run_indexing=False):
     """
     """
-    if get_indexed_documents_count(es_client, index_name)['count'] != len(documents):     
+    indexed_docs_count = get_indexed_documents_count(es_client, index_name)['count']
+    if is_run_indexing:     
         ## ====> Model
         embed_model_name = os.environ.get('EMBED_MODEL')
 
@@ -228,8 +229,14 @@ def index_documents_es(ollama_client, es_client, index_name, documents):
             seq=vectorized_documents,
             max_workers=4,
         )
+
+        print(f"""Successfully indexed {
+              get_indexed_documents_count(es_client, index_name)['count'] - indexed_docs_count
+        }""")
     else:
-        print(f"Index {index_name} already has {len(documents)} documents")
+        print("No document-indexing will take place.")
+
+    print(f"Index {index_name} has {indexed_docs_count} documents")
 
 
 def check_for_new_data(bucket_dir):

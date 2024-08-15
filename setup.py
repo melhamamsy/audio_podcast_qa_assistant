@@ -102,8 +102,15 @@ def setup_es(reindex_es=False, defacto=True, new_episodes_dirs=None):
 
 
     ## > Indexing documents in ES
-    _ = index_documents_es(OLLAMA_CLIENT, ES_CLIENT, INDEX_NAME, documents)
+    is_run_indexing = bool(new_episodes_dirs or reindex_es)
+    _ = index_documents_es(
+        OLLAMA_CLIENT, ES_CLIENT, INDEX_NAME, documents, is_run_indexing)
     print_log("============> Indexing Documents in ES: Done.")
+
+
+@flow(name="init_db" ,log_prints=True)
+def init_df_flow(reinit_db):
+    task(init_db, log_prints=True)(reinit_db)
 
 
 @flow(name="process_new_episodes" ,log_prints=True)
@@ -145,7 +152,7 @@ if __name__ == "__main__":
         )
 
         deployment_init_db = Deployment.build_from_flow(
-            flow=flow(init_db, name="init_db" ,log_prints=True),
+            flow=init_df_flow,
             name="ad-hoc",
             work_pool_name=WORK_POOL_NAME,
             parameters={"reinit_db": reinit_db},
@@ -167,4 +174,3 @@ if __name__ == "__main__":
         deployment_process_new_episodes.apply()
     else:
         print("'reinit_prefect' is set to 'False', no need to redeploy ...")
-

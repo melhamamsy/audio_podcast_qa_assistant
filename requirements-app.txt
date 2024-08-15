@@ -1,0 +1,7 @@
+streamlit
+tqdm
+openai
+psycopg
+psycopg-binary
+elasticsearch
+python-dotenv

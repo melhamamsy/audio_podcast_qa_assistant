@@ -13,7 +13,8 @@ TZ = ZoneInfo("Africa/Cairo")
 CREATE_STATEMENTS = {
     'conversations' : """
         CREATE TABLE conversations (
-            id TEXT PRIMARY KEY,
+            id TEXT,
+            question_id TEXT,
             question TEXT NOT NULL,
             answer TEXT NOT NULL,
             model_used TEXT NOT NULL,
@@ -27,15 +28,19 @@ CREATE_STATEMENTS = {
             eval_completion_tokens INTEGER NOT NULL,
             eval_total_tokens INTEGER NOT NULL,
             openai_cost FLOAT NOT NULL,
-            timestamp TIMESTAMP WITH TIME ZONE NOT NULL
+            timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
+            PRIMARY KEY (id, question_id)
         );
     """.strip(),
     'feedback' : """
         CREATE TABLE feedback (
             id SERIAL PRIMARY KEY,
-            conversation_id TEXT REFERENCES conversations(id),
+            conversation_id TEXT,
+            question_id TEXT,
             feedback INTEGER NOT NULL,
-            timestamp TIMESTAMP WITH TIME ZONE NOT NULL
+            timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
+            FOREIGN KEY (conversation_id, question_id)
+                REFERENCES conversations(id, question_id)
         )
     """.strip(),
 }
@@ -140,7 +145,9 @@ def init_db(reinit_db=False):
                 print(f'Successfully created table {table_name}')
 
 
-def save_conversation(conversation_id, question, answer_data, timestamp=None, is_setup=False):
+def save_conversation(
+        conversation_id, question_id, question, answer_data, timestamp=None, is_setup=False
+        ):
     if timestamp is None:
         timestamp = datetime.now(TZ)
 
@@ -160,13 +167,14 @@ def save_conversation(conversation_id, question, answer_data, timestamp=None, is
             cur.execute(
                 """
                 INSERT INTO conversations 
-                (id, question, answer, model_used, response_time, relevance, 
+                (id, question_id, question, answer, model_used, response_time, relevance, 
                 relevance_explanation, prompt_tokens, completion_tokens, total_tokens, 
                 eval_prompt_tokens, eval_completion_tokens, eval_total_tokens, openai_cost, timestamp)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, COALESCE(%s, CURRENT_TIMESTAMP))
             """,
                 (
                     conversation_id,
+                    question_id,
                     question,
                     answer_data["answer"],
                     answer_data["model_used"],
@@ -185,7 +193,8 @@ def save_conversation(conversation_id, question, answer_data, timestamp=None, is
             )
 
 
-def save_feedback(conversation_id, feedback, timestamp=None, is_setup=False):
+def save_feedback(
+        conversation_id, question_id, feedback, timestamp=None, is_setup=False):
     if timestamp is None:
         timestamp = datetime.now(TZ)
 
@@ -203,8 +212,8 @@ def save_feedback(conversation_id, feedback, timestamp=None, is_setup=False):
     with get_db_connection(**conn_info) as conn:
         with conn.cursor() as cur:
             cur.execute(
-                "INSERT INTO feedback (conversation_id, feedback, timestamp) VALUES (%s, %s, COALESCE(%s, CURRENT_TIMESTAMP))",
-                (conversation_id, feedback, timestamp),
+                "INSERT INTO feedback (conversation_id, question_id, feedback, timestamp) VALUES (%s, %s, %s, COALESCE(%s, CURRENT_TIMESTAMP))",
+                (conversation_id, question_id, feedback, timestamp),
             )
 
 
@@ -225,6 +234,7 @@ def get_recent_conversations(limit=5, relevance=None):
                 SELECT c.*, f.feedback
                 FROM conversations c
                 LEFT JOIN feedback f ON c.id = f.conversation_id
+                AND c.question_id = f.question_id
             """
             if relevance:
                 query += f" WHERE c.relevance = '{relevance}'"

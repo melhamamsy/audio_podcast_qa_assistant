@@ -6,6 +6,7 @@ reindex_es="false"
 reinit_db="false"
 defacto="true"
 reinit_prefect="false"
+keep_prefect_server_alive="true"
 
 # Modify with your preferred models
 CHAT_MODEL=phi3
@@ -60,6 +61,14 @@ do
         reinit_prefect="${param#*=}"
         if [[ "$reinit_prefect" != "true" && "$reinit_prefect" != "false" ]]; then
             echo "Invalid value for x: $reinit_prefect. Must be 'true' or 'false'."
+            exit 1
+        fi
+        shift # remove the current param from the list
+        ;;
+        keep_prefect_server_alive=*)
+        keep_prefect_server_alive="${param#*=}"
+        if [[ "$keep_prefect_server_alive" != "true" && "$keep_prefect_server_alive" != "false" ]]; then
+            echo "Invalid value for x: $keep_prefect_server_alive. Must be 'true' or 'false'."
             exit 1
         fi
         shift # remove the current param from the list
@@ -179,7 +188,7 @@ docker-compose exec postgres bash -c "
     CREATE DATABASE prefect;
   \"
 "
-echoo "Created 'prefect' database, or already exists."
+echoo "'prefect' database is ready."
 
 
 # Activate the conda environment and run setup.py
@@ -190,7 +199,7 @@ source activate dtc-llm-env
 prefect server start &
 sleep 5
 prefect profile use local-server
-if ! prefect work-pool ls | grep -q "$WORK_POOL_NAME"; then
+if [ $(python scripts/check_work_pool_exists.py) == "false" ]; then
   prefect work-pool create "$WORK_POOL_NAME" --type process
   echo "Work pool \"$WORK_POOL_NAME\" created."
 else
@@ -206,4 +215,9 @@ python setup.py \
     --defacto "$defacto" \
     --reinit_prefect "$reinit_prefect"
 
-prefect deployment run
+
+# Prefect Server
+if [ "$keep_prefect_server_alive" == "false" ]; then
+  echoo "Stopping 'prefect' server..."
+  kill $(ps aux | grep "prefect server" | grep -v grep | awk '{print $2}')
+fi
