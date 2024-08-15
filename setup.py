@@ -1,5 +1,7 @@
 import os
 import argparse
+import asyncio
+import time
 from utils.utils import print_log
 from utils.tasks import (load_podcast_data,
                          create_whisper_processor_and_model,
@@ -13,9 +15,11 @@ from utils.tasks import (load_podcast_data,
                          )
 from utils.variables import (PROJECT_DIR, CACHE_DIR,
                              ES_CLIENT, OLLAMA_CLIENT,
-                             INDEX_NAME, WORK_POOL_NAME
+                             INDEX_NAME, WORK_POOL_NAME,
                              )
 from utils.postgres import init_db
+from utils.prefect import (get_deployment_id_by_name,
+                           create_deployment_run)
 from prefect import task, flow
 from prefect.deployments import Deployment
 from prefect.client.schemas.schedules import CronSchedule
@@ -28,7 +32,7 @@ def parse_cli_args():
     parser.add_argument('--reindex_es', type=str, required=False, help='Value of reindex_es')
     parser.add_argument('--reinit_db', type=str, required=False, help='Value of reinit_db')
     parser.add_argument('--defacto', type=str, required=False, help='Value of defacto')
-    parser.add_argument('--reinit_prefect', type=str, required=False, help='Value of reinit_prefect')
+    parser.add_argument('--redeploy_flows', type=str, required=False, help='Value of redeploy_flows')
     args = parser.parse_args()
 
     assert args.reindex_es in ["true", "false", None],\
@@ -37,16 +41,16 @@ def parse_cli_args():
         "'reinit_db' must be either 'true', 'false', or left blank"
     assert args.defacto in ["true", "false", None],\
         "'defacto' must be either 'true', 'false', or left blank"
-    assert args.reinit_prefect in ["true", "false", None],\
-        "'reinit_prefect' must be either 'true', 'false', or left blank"
+    assert args.redeploy_flows in ["true", "false", None],\
+        "'redeploy_flows' must be either 'true', 'false', or left blank"
 
     reindex_es = True if args.reindex_es == "true" else False
     reinit_db = True if args.reinit_db == "true" else False
     defacto = False if args.defacto == "false" else True
-    reinit_prefect = True if args.reinit_prefect == "true" else False
+    redeploy_flows = True if args.redeploy_flows == "true" else False
 
 
-    return reindex_es, reinit_db, defacto, reinit_prefect
+    return reindex_es, reinit_db, defacto, redeploy_flows
 
 
 @flow(name="setup_es" ,log_prints=True)
@@ -101,10 +105,15 @@ def setup_es(reindex_es=False, defacto=True, new_episodes_dirs=None):
     print_log("============> Loading Chunking Documents: Done.")
 
 
-    ## > Indexing documents in ES
+    ## ============> Indexing documents in ES
     is_run_indexing = bool(new_episodes_dirs or reindex_es)
     _ = index_documents_es(
-        OLLAMA_CLIENT, ES_CLIENT, INDEX_NAME, documents, is_run_indexing)
+        ollama_client=OLLAMA_CLIENT,
+        es_client=ES_CLIENT,
+        index_name=INDEX_NAME,
+        documents=documents,
+        is_run_indexing=is_run_indexing
+    )
     print_log("============> Indexing Documents in ES: Done.")
 
 
@@ -127,7 +136,17 @@ def process_new_episodes(bucket_dir):
         }
 
         # Run the flow with parameters
-        setup_es.run(parameters=params)
+        deployment_name = "ad-hoc"
+        flow_name = "setup_es"
+        deployment_id = asyncio.run(get_deployment_id_by_name(
+            deployment_name=deployment_name,
+            flow_name=flow_name,
+        ))
+
+        _ = asyncio.run(create_deployment_run(
+            deployment_id=deployment_id,
+            parameters=params,
+        ))
 
         task(update_bucket_state, log_prints=True)(bucket_dir, new_dirs)
     else:
@@ -137,10 +156,10 @@ def process_new_episodes(bucket_dir):
 if __name__ == "__main__":
     """
     """
-    reindex_es, reinit_db, defacto, reinit_prefect = parse_cli_args()
+    reindex_es, reinit_db, defacto, redeploy_flows = parse_cli_args()
     
     # Creating deployments for the flows
-    if reinit_prefect:
+    if redeploy_flows:
         print_log(
             "Re-deploying prefect flows ...")
 
@@ -173,4 +192,4 @@ if __name__ == "__main__":
         deployment_init_db.apply()
         deployment_process_new_episodes.apply()
     else:
-        print("'reinit_prefect' is set to 'False', no need to redeploy ...")
+        print("'redeploy_flows' is set to 'False', no need to redeploy ...")

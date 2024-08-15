@@ -1,4 +1,5 @@
 <!-- pgcli postgresql://postgres:example@localhost:5432/lex_fridman_podcast -->
+<!-- Update docker-compose to have es volume as docker volume not local dir -->
 
 ### Needed for Chunking
 ```python -m spacy download en_core_web_sm```
@@ -22,7 +23,15 @@ To indicate tracked directories for orchestration to decide if there are new epi
 ```
     cd path/to/project
     docker-compose up postgres ollama elasticsearch #grafana
-    ./setup.shreindex_es="false" defacto="true" reinit_prefect=true"
+
+    # set as per your need
+    ./setup.sh \
+        reinit_db="false" \
+        reindex_es="false" \
+        defacto="true" \
+        reinit_prefect="false" \
+        redeploy_flows="true" \
+        keep_prefect_server_alive="true" 
 
     # make sure env variables are exported from .env
     ## if not: > export $(grep -v '^#' .env | xargs)
@@ -43,6 +52,6 @@ To indicate tracked directories for orchestration to decide if there are new epi
 
 ## DO NOT FORGET TO
 ```
-kill $(ps aux | grep "prefect server" | grep -v grep | awk '{print $2}')
+kill $(ps aux | grep "prefect server" | grep -v grep | awk '{print $2}') 2>/dev/null
 docker-compose down
 ```

@@ -6,6 +6,7 @@ reindex_es="false"
 reinit_db="false"
 defacto="true"
 reinit_prefect="false"
+redeploy_flows="true"
 keep_prefect_server_alive="true"
 
 # Modify with your preferred models
@@ -61,6 +62,14 @@ do
         reinit_prefect="${param#*=}"
         if [[ "$reinit_prefect" != "true" && "$reinit_prefect" != "false" ]]; then
             echo "Invalid value for x: $reinit_prefect. Must be 'true' or 'false'."
+            exit 1
+        fi
+        shift # remove the current param from the list
+        ;;
+        redeploy_flows=*)
+        redeploy_flows="${param#*=}"
+        if [[ "$redeploy_flows" != "true" && "$redeploy_flows" != "false" ]]; then
+            echo "Invalid value for x: $redeploy_flows. Must be 'true' or 'false'."
             exit 1
         fi
         shift # remove the current param from the list
@@ -173,6 +182,7 @@ docker-compose exec -e CHAT_MODEL="$CHAT_MODEL" -e EMBED_MODEL="$EMBED_MODEL" ol
 
 
 # Execute in postgres database: Create prefect db if not exists
+kill $(ps aux | grep "prefect server" | grep -v grep | awk '{print $2}') 2>/dev/null
 if [ "$reinit_prefect" == "true" ]; then
   echoo "Reinitializing 'prefect' database..."
   docker-compose exec postgres bash -c "
@@ -213,7 +223,7 @@ python setup.py \
     --reindex_es "$reindex_es" \
     --reinit_db "$reinit_db" \
     --defacto "$defacto" \
-    --reinit_prefect "$reinit_prefect"
+    --redeploy_flows "$redeploy_flows"
 
 
 # Prefect Server

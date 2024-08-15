@@ -2,6 +2,7 @@
 """
 
 import os
+import gc
 import json
 from pathlib import Path
 import pickle
@@ -50,6 +51,7 @@ def load_podcast_data(new_episodes_dirs=None,
                 os.path.join(PROJECT_DIR, f"bucket/{dir}/episode.mp3")
             )
             audio = standardize_array(audio)
+            # [:4_800_000] #10 seconds for testing
 
             episode = read_json_file(
                 os.path.join(PROJECT_DIR, f"bucket/{dir}/metadata.json")
@@ -60,6 +62,7 @@ def load_podcast_data(new_episodes_dirs=None,
             }
 
             dataset.append(episode)
+            del audio; gc.collect()
 
         return dataset
     else:
@@ -124,7 +127,7 @@ def transcripe_and_cache_episodes(model,
                     transcripts_cache_dir,
                     episode_title + ".json",
                 )
-                save_json_file(episode, path)
+                save_json_file(episode, path, replace=True)
 
 
 def load_cached_episodes(transcripts_cache_dir,
@@ -137,7 +140,7 @@ def load_cached_episodes(transcripts_cache_dir,
         return
 
     dataset = []
-    for path in get_json_files_in_dir(transcripts_cache_dir, return_full_path=True, defacto=True):   
+    for path in get_json_files_in_dir(transcripts_cache_dir, return_full_path=True):   
         dataset.append(read_json_file(path))
         
     return dataset
@@ -174,7 +177,7 @@ def chunk_episodes(dataset,
             max_chunk_size=max_chunk_size,
         ),
         seq=Dataset.from_list(dataset),
-        max_workers=4
+        max_workers=1
     )
     documents = [item for sublist in documents for item in sublist]
 
@@ -218,7 +221,7 @@ def index_documents_es(ollama_client, es_client, index_name, documents, is_run_i
             f=lambda document: embed_document(
                 ollama_client, document, embed_model_name),
             seq=documents,
-            max_workers=4,
+            max_workers=1,
         )
 
         ## ====> Indexing...
@@ -227,7 +230,7 @@ def index_documents_es(ollama_client, es_client, index_name, documents, is_run_i
             f=lambda document: index_document(
                 es_client, index_name, document, timeout=60),
             seq=vectorized_documents,
-            max_workers=4,
+            max_workers=1,
         )
 
         print(f"""Successfully indexed {
