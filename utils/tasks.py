@@ -50,8 +50,7 @@ def load_podcast_data(new_episodes_dirs=None,
             audio, sampling_rate = read_mp3(
                 os.path.join(PROJECT_DIR, f"bucket/{dir}/episode.mp3")
             )
-            audio = standardize_array(audio)
-            # [:4_800_000] #10 seconds for testing
+            audio = standardize_array(audio)[:4_800_000] #10 seconds for testing
 
             episode = read_json_file(
                 os.path.join(PROJECT_DIR, f"bucket/{dir}/metadata.json")
@@ -211,7 +210,10 @@ def init_es(reindex_es=False):
 def index_documents_es(ollama_client, es_client, index_name, documents, is_run_indexing=False):
     """
     """
-    indexed_docs_count = get_indexed_documents_count(es_client, index_name)['count']
+    pre_indexing_count = get_indexed_documents_count(es_client, index_name)['count']
+
+    print(f"Index {index_name} previously had {pre_indexing_count} documents.")
+    
     if is_run_indexing:     
         ## ====> Model
         embed_model_name = os.environ.get('EMBED_MODEL')
@@ -221,25 +223,30 @@ def index_documents_es(ollama_client, es_client, index_name, documents, is_run_i
             f=lambda document: embed_document(
                 ollama_client, document, embed_model_name),
             seq=documents,
-            max_workers=1,
+            max_workers=2,
         )
+
 
         ## ====> Indexing...
         print("Documents indexing in es: ...")
-        map_progress(
+        status = map_progress(
             f=lambda document: index_document(
                 es_client, index_name, document, timeout=60),
             seq=vectorized_documents,
-            max_workers=1,
+            max_workers=2,
         )
 
-        print(f"""Successfully indexed {
-              get_indexed_documents_count(es_client, index_name)['count'] - indexed_docs_count
-        }""")
+        n_removed_docs = sum([st['removed'] for st in status])
+        n_indexed_docs = sum([st['indexed'] for st in status])
+
+        print(f"Documents removed: {n_removed_docs}")
+        print(f"Documents indexed: {n_indexed_docs}")
     else:
         print("No document-indexing will take place.")
 
-    print(f"Index {index_name} has {indexed_docs_count} documents")
+    
+    print(f"""Index {index_name} now has \
+            {pre_indexing_count - n_removed_docs + n_indexed_docs} documents.""")
 
 
 def check_for_new_data(bucket_dir):

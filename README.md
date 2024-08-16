@@ -35,7 +35,7 @@ To indicate tracked directories for orchestration to decide if there are new epi
 
     # make sure env variables are exported from .env
     ## if not: > export $(grep -v '^#' .env | xargs)
-    prefect worker start --pool "$WORK_POOL_NAME" 
+    prefect worker start --pool "$WORK_POOL_NAME"
 ```
 
 ## ad-hoc

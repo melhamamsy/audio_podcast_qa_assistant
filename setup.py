@@ -1,7 +1,6 @@
 import os
 import argparse
 import asyncio
-import time
 from utils.utils import print_log
 from utils.tasks import (load_podcast_data,
                          create_whisper_processor_and_model,
@@ -53,7 +52,7 @@ def parse_cli_args():
     return reindex_es, reinit_db, defacto, redeploy_flows
 
 
-@flow(name="setup_es" ,log_prints=True)
+@flow(name="setup_es" ,log_prints=True, persist_result=False)
 def setup_es(reindex_es=False, defacto=True, new_episodes_dirs=None):
     """Setup ElasticSearch Index.
     """
@@ -107,7 +106,7 @@ def setup_es(reindex_es=False, defacto=True, new_episodes_dirs=None):
 
     ## ============> Indexing documents in ES
     is_run_indexing = bool(new_episodes_dirs or reindex_es)
-    _ = index_documents_es(
+    _ = task(index_documents_es, log_prints=True)(
         ollama_client=OLLAMA_CLIENT,
         es_client=ES_CLIENT,
         index_name=INDEX_NAME,

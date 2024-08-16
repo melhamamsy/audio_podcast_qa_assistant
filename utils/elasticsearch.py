@@ -122,7 +122,7 @@ def load_index_settings(index_settings_path):
     return index_settings
 
 
-def index_document(es_client, index_name, document, timeout=60):
+def index_document(es_client, index_name, document, timeout=60, replace=True):
     """
     Index multiple documents into an Elasticsearch index.
 
@@ -132,10 +132,37 @@ def index_document(es_client, index_name, document, timeout=60):
         documents (list): A list of documents to index.
         timeout (int): The timeout for indexing requests in seconds. Default is 60.
     """
+        
+    status = {
+        "removed":0,
+        "indexed":0,
+    }
+
+    if replace:
+        # Remove indexed documents with same id
+        _ids_response = es_client.search(index=index_name, body={
+            "query": {
+                "term": {
+                    "id": document["id"]
+                }
+            }
+        })
+
+        # Extract document IDs from the search results
+        _ids = [hit["_id"] for hit in _ids_response["hits"]["hits"]]
+
+        for _id in _ids:
+            _ = es_client.delete(index=index_name, id=_id)
+
+        status["removed"] = len(_ids)
+
     try:
         es_client.index(index=index_name, document=document, timeout=f"{timeout}s")
+        status["indexed"] = 1
     except RequestError as e:
         print(f"{e}", "id:", document['id'], "-> Skipped...")
+
+    return status
 
 
 def get_index_mapping(es_client, index_name):

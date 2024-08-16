@@ -12,6 +12,7 @@ services:
     ports:
       - "9200:9200"
       - "9300:9300"
+    mem_limit: 4g
 
   ollama:
     image: ollama/ollama
