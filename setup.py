@@ -11,6 +11,9 @@ from utils.tasks import (load_podcast_data,
                          index_documents_es,
                          check_for_new_data,
                          update_bucket_state,
+                         set_grafana_token,
+                         reinit_grafana_datasource,
+                         recreate_grafana_dashboard,
                          )
 from utils.variables import (PROJECT_DIR, CACHE_DIR,
                              ES_CLIENT, OLLAMA_CLIENT,
@@ -26,12 +29,16 @@ from prefect.client.schemas.schedules import CronSchedule
 
 def parse_cli_args():
     """
+    --reinint_grafana "$reinint_grafana" \
+    --recreate_dashboards "$recreate_dashboards"
     """
     parser = argparse.ArgumentParser(description="Reading control parameters.")
     parser.add_argument('--reindex_es', type=str, required=False, help='Value of reindex_es')
     parser.add_argument('--reinit_db', type=str, required=False, help='Value of reinit_db')
     parser.add_argument('--defacto', type=str, required=False, help='Value of defacto')
     parser.add_argument('--redeploy_flows', type=str, required=False, help='Value of redeploy_flows')
+    parser.add_argument('--reinint_grafana', type=str, required=False, help='Value of reinint_grafana')
+    parser.add_argument('--recreate_dashboards', type=str, required=False, help='Value of recreate_dashboards')
     args = parser.parse_args()
 
     assert args.reindex_es in ["true", "false", None],\
@@ -42,14 +49,19 @@ def parse_cli_args():
         "'defacto' must be either 'true', 'false', or left blank"
     assert args.redeploy_flows in ["true", "false", None],\
         "'redeploy_flows' must be either 'true', 'false', or left blank"
+    assert args.reinint_grafana in ["true", "false", None],\
+        "'reinint_grafana' must be either 'true', 'false', or left blank"
+    assert args.recreate_dashboards in ["true", "false", None],\
+        "'recreate_dashboards' must be either 'true', 'false', or left blank"
 
     reindex_es = True if args.reindex_es == "true" else False
     reinit_db = True if args.reinit_db == "true" else False
     defacto = False if args.defacto == "false" else True
     redeploy_flows = True if args.redeploy_flows == "true" else False
+    reinint_grafana = True if args.reinint_grafana == "true" else False
+    recreate_dashboards = True if args.recreate_dashboards == "true" else False
 
-
-    return reindex_es, reinit_db, defacto, redeploy_flows
+    return reindex_es, reinit_db, defacto, redeploy_flows, reinint_grafana, recreate_dashboards
 
 
 @flow(name="setup_es" ,log_prints=True, persist_result=False)
@@ -152,11 +164,31 @@ def process_new_episodes(bucket_dir):
         print("Found no new episodes, nothing to do...")
 
 
+@flow(name="setup_grafana" ,log_prints=True)
+def setup_grafana(reinit_grafana=False, recreate_dashboards=False):
+    datasource_name = os.getenv("GRAFANA_DS_NAME")
+    dashboard_name = os.getenv('GRAFANA_DASHBOARD_NAME')
+
+    task(set_grafana_token, log_prints=True)(reset_token=False)
+
+    task(reinit_grafana_datasource, log_prints=True)(
+        datasource_name=datasource_name,
+        reinint_grafana=reinit_grafana
+        )
+    
+    task(recreate_grafana_dashboard, log_prints=True)(
+        dashboard_name=dashboard_name,
+        recreate_dashboards=recreate_dashboards,
+    )
+
+
+
 if __name__ == "__main__":
     """
     """
-    reindex_es, reinit_db, defacto, redeploy_flows = parse_cli_args()
-    
+    reindex_es, reinit_db, defacto, redeploy_flows, \
+        reinit_grafana, recreate_dashboards = parse_cli_args()
+
     # Creating deployments for the flows
     if redeploy_flows:
         print_log(
@@ -174,6 +206,16 @@ if __name__ == "__main__":
             name="ad-hoc",
             work_pool_name=WORK_POOL_NAME,
             parameters={"reinit_db": reinit_db},
+        )
+
+        deployment_setup_grafana = Deployment.build_from_flow(
+            flow=setup_grafana,
+            name="ad-hoc",
+            work_pool_name=WORK_POOL_NAME,
+            parameters={
+                "reinint_grafana": reinit_grafana,
+                "recreate_dashboards": recreate_dashboards, 
+            },
         )
 
         deployment_process_new_episodes = Deployment.build_from_flow(

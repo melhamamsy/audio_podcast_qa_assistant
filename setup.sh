@@ -7,6 +7,8 @@ reinit_db="false"
 defacto="true"
 reinit_prefect="false"
 redeploy_flows="true"
+reinint_grafana="false"
+recreate_dashboards="false"
 keep_prefect_server_alive="true"
 
 # Modify with your preferred models
@@ -74,6 +76,22 @@ do
         fi
         shift # remove the current param from the list
         ;;
+        reinint_grafana=*)
+        reinint_grafana="${param#*=}"
+        if [[ "$reinint_grafana" != "true" && "$reinint_grafana" != "false" ]]; then
+            echo "Invalid value for x: $reinint_grafana. Must be 'true' or 'false'."
+            exit 1
+        fi
+        shift # remove the current param from the list
+        ;;
+        recreate_dashboards=*)
+        recreate_dashboards="${param#*=}"
+        if [[ "$recreate_dashboards" != "true" && "$recreate_dashboards" != "false" ]]; then
+            echo "Invalid value for x: $recreate_dashboards. Must be 'true' or 'false'."
+            exit 1
+        fi
+        shift # remove the current param from the list
+        ;;
         keep_prefect_server_alive=*)
         keep_prefect_server_alive="${param#*=}"
         if [[ "$keep_prefect_server_alive" != "true" && "$keep_prefect_server_alive" != "false" ]]; then
@@ -83,7 +101,7 @@ do
         shift # remove the current param from the list
         ;;
         *)
-        echo "Invalid parameter: $param, you can only use reinit_db, reindex_es, defacto, or leave plank."
+        echo "Invalid parameter: $param"
         exit 1
         ;;
     esac
@@ -223,7 +241,9 @@ python setup.py \
     --reindex_es "$reindex_es" \
     --reinit_db "$reinit_db" \
     --defacto "$defacto" \
-    --redeploy_flows "$redeploy_flows"
+    --redeploy_flows "$redeploy_flows" \
+    --reinint_grafana "$reinint_grafana" \
+    --recreate_dashboards "$recreate_dashboards"
 
 
 # Prefect Server

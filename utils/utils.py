@@ -14,7 +14,7 @@ import re
 import time
 import numpy as np
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv, set_key, dotenv_values
 from exceptions.exceptions import SetupWrongParam
 
 
@@ -54,7 +54,7 @@ def is_sublist(main_list, sublist):
     return all(any(sub_elem == main_elem for main_elem in it) for sub_elem in sublist)
 
 
-def initialize_env_variables(project_root=None):
+def initialize_env_variables(project_root=None, override=True):
     """
     Initialize environment variables from a .env file.
 
@@ -70,7 +70,24 @@ def initialize_env_variables(project_root=None):
 
     print("Initialized environment variables listed in:", dotenv_path)
     # Load the .env file
-    load_dotenv(dotenv_path)
+    load_dotenv(dotenv_path, override=override)
+
+
+def create_or_update_dotenv_var(dotenv_var, value, project_root=None):
+    """
+    """
+    if not project_root:
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
+
+    dotenv_path = os.path.join(project_root, ".env")
+    env_variables = dotenv_values(dotenv_path)
+
+    set_key(dotenv_path, dotenv_var, value)
+
+    if dotenv_var in env_variables:
+        print(f"Updated existing dotenv variable: {dotenv_var}")
+    else:
+        print(f"Created new dotenv variable: {dotenv_var}")
 
 
 def load_json_document(path):

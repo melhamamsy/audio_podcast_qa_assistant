@@ -9,7 +9,9 @@ import pickle
 from tqdm.auto import tqdm
 from utils.utils import (print_log, get_json_files_in_dir,
                          read_json_file, save_json_file,
-                         standardize_array,
+                         standardize_array, sleep_seconds,
+                         create_or_update_dotenv_var,
+                         initialize_env_variables,
                          )
 from utils.chunking import (chunk_large_text,
                             preindex_process_text)
@@ -29,9 +31,21 @@ from datasets import load_dataset, Dataset
 from utils.multithread import map_progress
 from transformers import (WhisperProcessor,
                           WhisperForConditionalGeneration)
+from utils.grafana import (drop_grafana_data_source,
+                           create_grafana_data_source,
+                           get_grafana_data_source,
+                           get_dashboard_uid_by_name,
+                           delete_dashboard,
+                           create_dashboard,
+                           get_grafana_token_ids,
+                           create_grafana_token,
+                           delete_grafana_token,)
 from utils.variables import (PROJECT_DIR, ES_CLIENT,
                              INDEX_NAME, INDEX_SETTINGS_PATH,
                              EXPECTED_MAPPING, CACHE_DIR,
+                             POSTGRES_HOST, POSTGRES_PORT,
+                             POSTGRES_USER, POSTGRES_PASSWORD,
+                             POSTGRES_DB
                              )
 
 
@@ -297,3 +311,90 @@ def update_bucket_state(bucket_dir, new_dirs=[]):
         json.dump(state, f, indent=4)
 
     print("Updated Bucket state for newly indexed documents.")
+
+
+def set_grafana_token(reset_token=False):
+    """
+    """
+    if not os.getenv('GRAFANA_ADMIN_TOKEN') or reset_token:
+        for token_id in get_grafana_token_ids():
+            delete_grafana_token(token_id)
+        token = create_grafana_token()
+        if token:
+            create_or_update_dotenv_var('GRAFANA_ADMIN_TOKEN', token)
+            initialize_env_variables()
+        print("Token overwriten.")
+    else:
+        print("Token already exists, if you want to overwrite it, pass 'reset_token=True'.")
+
+
+def reinit_grafana_datasource(datasource_name, reinit_grafana=False):
+    """
+    """
+    # Grafana datasource configuration
+    datasource_info = {
+        "name": datasource_name,
+        "type": "grafana-postgresql-datasource",
+        "url": f"{POSTGRES_HOST}:{POSTGRES_PORT}",
+        "access": "proxy",
+        "user": POSTGRES_USER,
+        "secureJsonData": {
+            "password": POSTGRES_PASSWORD
+        },
+        "jsonData": {
+            "database": POSTGRES_DB,
+            "postgresVersion": 903,
+            "sslmode": "disable"
+        }
+    }
+
+    if not get_grafana_data_source(datasource_name):
+        print(f"Datasource {datasource_name} doesn't exist, recreating")
+        create_grafana_data_source(datasource_info)
+    elif reinit_grafana:
+        print(f"Datasource {datasource_name} exists, recreating...")
+        drop_grafana_data_source(datasource_name)
+        create_grafana_data_source(datasource_info)
+
+        print("Waiting for some seconds till DS connection is ready...")
+        sleep_seconds(20)
+    else:
+        print(f"Datasource {datasource_name} exists, and no recreation is requested, nothing to do...")
+
+
+def recreate_grafana_dashboard(dashboard_name, datasource_name, json_file_path=None, recreate_dashboards=False):
+    """
+    """
+    datasource_uid = get_grafana_data_source(datasource_name)['uid']
+    
+    # Reading dashboard
+    if not json_file_path:
+        json_file_path = os.path.join(
+            os.getenv('PROJECT_SETUP_DIR'),
+            "config/grafana/lex_fridman_bot_dashboard.json",
+        )
+
+    with open(json_file_path, "r") as json_file:
+        dashboard = json.load(json_file)
+        for panel in dashboard['dashboard']['panels']:
+            panel['datasource']['uid'] = datasource_uid
+            for target in panel['targets']:
+                target['datasource']['uid'] = datasource_uid
+        dashboard['dashboard']['title'] = dashboard_name
+
+    with open(json_file_path, 'w') as json_file:
+        json.dump(dashboard, json_file, indent=4)
+
+    ## Delete dashboard if exists
+    dashboard_uid = get_dashboard_uid_by_name(dashboard_name)
+
+    if not dashboard_uid:
+        print(f"Dashboard {dashboard_name} doesn't exist, recreating")
+        create_dashboard(dashboard)
+    elif recreate_dashboards:
+        print(f"Dashboard {dashboard_name} exists, recreating...")
+        delete_dashboard(dashboard_uid)
+        create_dashboard(dashboard)
+    else:
+        print(f"Dashboard {dashboard_name} exists, and no recreation is requested, nothing to do...")
+    

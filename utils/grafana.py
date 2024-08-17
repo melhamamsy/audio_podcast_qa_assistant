@@ -1,19 +1,113 @@
 import requests
 import json
+from utils.variables import (
+    GRAFANA_URL,
+    GRAFANA_ADMIN_USER,
+    GRAFANA_ADMIN_PASSWORD,
+    GRAFANA_ADMIN_TOKEN,
+)
 
 
-def get_grafana_data_source(grafana_host, grafana_port, datasource_name, grafana_admin_token):
+def create_grafana_token(seconds_to_live=0):
     """
     """
-    grafana_url = f'http://{grafana_host}:{grafana_port}'
+    # Payload for creating the API key
+    payload = {
+        "name": "AdminToken",
+        "role": "Admin",
+        "secondsToLive": seconds_to_live  # Set to 0 for no expiration
+    }
 
+    # Headers with basic authentication
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    # Make the POST request to create the API key
+    response = requests.post(
+        url=f"{GRAFANA_URL}/api/auth/keys",
+        json=payload,
+        headers=headers,
+        auth=(GRAFANA_ADMIN_USER, GRAFANA_ADMIN_PASSWORD)
+    )
+
+    # Check if the request was successful
+    token = None
+    if response.status_code == 200:
+        token = response.json().get("key")
+        print(f"API Key: {token}")
+    else:
+        print(f"Failed to create API key. Status code: {response.status_code}")
+        print(response.json())
+
+    return token
+
+
+def get_grafana_token_ids():
+    """
+    """
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    # Make the GET request to list the API keys
+    response = requests.get(
+        url=f"{GRAFANA_URL}/api/auth/keys",
+        headers=headers,
+        auth=(GRAFANA_ADMIN_USER, GRAFANA_ADMIN_PASSWORD)
+    )
+
+    # Check if the request was successful
+    token_ids = []
+
+    if response.status_code == 200:
+        keys = response.json()
+        if keys:
+            print("Existing Grafana API Keys:")
+            for key in keys:
+                print(key)
+                token_ids.append(key['id'])
+        else:
+            print("No Grafana API keys found.")
+    else:
+        print(f"Failed to retrieve API keys. Status code: {response.status_code}")
+        print(response.json())
+
+    return token_ids
+
+
+def delete_grafana_token(token_id):
+    """
+    """
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    # Make the DELETE request to delete the API key
+    response = requests.delete(
+        url=f"{GRAFANA_URL}/api/auth/keys/{token_id}",
+        headers=headers,
+        auth=(GRAFANA_ADMIN_USER, GRAFANA_ADMIN_PASSWORD)
+    )
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        print(f"API Key with ID {token_id} successfully deleted.")
+    else:
+        print(f"Failed to delete API key. Status code: {response.status_code}")
+        print(response.json())
+
+
+def get_grafana_data_source(datasource_name):
+    """
+    """
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer {grafana_admin_token}'
+        'Authorization': f'Bearer {GRAFANA_ADMIN_TOKEN}'
     }
 
     response = requests.get(
-        f'{grafana_url}/api/datasources/name/{datasource_name}', headers=headers
+        f'{GRAFANA_URL}/api/datasources/name/{datasource_name}', headers=headers
     )
 
     if response.status_code == 200:
@@ -27,24 +121,22 @@ def get_grafana_data_source(grafana_host, grafana_port, datasource_name, grafana
         )
 
 
-def drop_grafana_data_source(grafana_host, grafana_port, datasource_name, grafana_admin_token):
+def drop_grafana_data_source(datasource_name):
     """
     """
-    grafana_url = f'http://{grafana_host}:{grafana_port}'
-
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer {grafana_admin_token}'
+        'Authorization': f'Bearer {GRAFANA_ADMIN_TOKEN}'
     }
 
     response = requests.get(
-        f'{grafana_url}/api/datasources/name/{datasource_name}', headers=headers
+        f'{GRAFANA_URL}/api/datasources/name/{datasource_name}', headers=headers
     )
     if response.status_code == 200:
         datasource_id = response.json()['id']
         # Delete the datasource by ID
         delete_response = requests.delete(
-            f'{grafana_url}/api/datasources/{datasource_id}', headers=headers
+            f'{GRAFANA_URL}/api/datasources/{datasource_id}', headers=headers
         )
         if delete_response.status_code == 200:
             print('Datasource deleted successfully.')
@@ -56,19 +148,16 @@ def drop_grafana_data_source(grafana_host, grafana_port, datasource_name, grafan
             )
             
 
-def create_grafana_data_source(
-    grafana_host, grafana_port, datasource_info, grafana_admin_token
-):
+def create_grafana_data_source(datasource_info):
     """
     """
-    grafana_url = f'http://{grafana_host}:{grafana_port}'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer {grafana_admin_token}'
+        'Authorization': f'Bearer {GRAFANA_ADMIN_TOKEN}'
     }
 
     response = requests.post(
-        f'{grafana_url}/api/datasources', headers=headers, data=json.dumps(datasource_info)
+        f'{GRAFANA_URL}/api/datasources', headers=headers, data=json.dumps(datasource_info)
     )
 
     if response.status_code == 200:
@@ -82,20 +171,17 @@ def create_grafana_data_source(
         exit()
         
 
-def create_dashboard(
-    grafana_host, grafana_port, dashboard, grafana_admin_token
-):
+def create_dashboard(dashboard):
     """
     """
-    grafana_url = f'http://{grafana_host}:{grafana_port}'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer {grafana_admin_token}'
+        'Authorization': f'Bearer {GRAFANA_ADMIN_TOKEN}'
     }
 
     # Create the dashboard
     response = requests.post(
-        f'{grafana_url}/api/dashboards/db', headers=headers, data=json.dumps(dashboard)
+        f'{GRAFANA_URL}/api/dashboards/db', headers=headers, data=json.dumps(dashboard)
     )
 
     if response.status_code == 200:
@@ -108,17 +194,16 @@ def create_dashboard(
         )
 
 
-def get_dashboard_uid_by_name(grafana_host, grafana_port, dashboard_name, grafana_admin_token):
+def get_dashboard_uid_by_name(dashboard_name):
     """
     Function to get the UID of a Grafana dashboard by its name.
     """
-    grafana_url = f'http://{grafana_host}:{grafana_port}'
     headers = {
-        'Authorization': f'Bearer {grafana_admin_token}'
+        'Authorization': f'Bearer {GRAFANA_ADMIN_TOKEN}'
     }
 
     # List all dashboards
-    response = requests.get(f'{grafana_url}/api/search', headers=headers)
+    response = requests.get(f'{GRAFANA_URL}/api/search', headers=headers)
 
     if response.status_code == 200:
         dashboards = response.json()
@@ -132,18 +217,17 @@ def get_dashboard_uid_by_name(grafana_host, grafana_port, dashboard_name, grafan
         return None
     
 
-def delete_dashboard(grafana_host, grafana_port, dashboard_uid, grafana_admin_token):
+def delete_dashboard(dashboard_uid):
     """
     Function to delete a Grafana dashboard.
     """
-    grafana_url = f'http://{grafana_host}:{grafana_port}'
     headers = {
-        'Authorization': f'Bearer {grafana_admin_token}'
+        'Authorization': f'Bearer {GRAFANA_ADMIN_TOKEN}'
     }
 
     # Delete the dashboard
     response = requests.delete(
-        f'{grafana_url}/api/dashboards/uid/{dashboard_uid}', headers=headers
+        f'{GRAFANA_URL}/api/dashboards/uid/{dashboard_uid}', headers=headers
     )
 
     if response.status_code == 200:

@@ -9,7 +9,7 @@ from utils.grafana import (drop_grafana_data_source,
                            delete_dashboard)
 from exceptions.exceptions import WrongCliParams
 
-def main(datasource_name, recreate_ds=True):
+def main(datasource_name, reinit_grafana=True):
     # Grafana settings
     grafana_host = os.getenv('GRAFANA_SETUP_HOST')
     grafana_port = os.getenv('GRAFANA_PORT')
@@ -37,10 +37,8 @@ def main(datasource_name, recreate_ds=True):
         }
     }
 
-    print('--',os.getenv('POSTGRES_PASSWORD'),'--', sep='')
-
     # Drop Datasource if exists
-    if recreate_ds:
+    if reinit_grafana:
         drop_grafana_data_source(
             grafana_host=grafana_host, 
             grafana_port=grafana_port, 
@@ -61,18 +59,13 @@ def main(datasource_name, recreate_ds=True):
     else:
         print("No datasource recreation is requested...")
 
-    datasource_uid = get_grafana_data_source(
-        grafana_host, 
-        grafana_port, 
-        datasource_name,
-        grafana_admin_token
-    )['uid']
+    datasource_uid = get_grafana_data_source(datasource_name)['uid']
 
 
     # Reading dashboard
     json_file_path = os.path.join(
         os.getenv('PROJECT_SETUP_DIR'),
-        "config/grafana/course_assistant_bot_dashboard.json",
+        "config/grafana/lex_fridman_bot_dashboard.json",
     )
     with open(json_file_path, "r") as json_file:
         dashboard = json.load(json_file)
@@ -103,23 +96,23 @@ def main(datasource_name, recreate_ds=True):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Reading control parameters.")
-    parser.add_argument('--recreate_ds', type=str, required=False, help='Value of reindex_es')
+    parser.add_argument('--reinit_grafana', type=str, required=False, help='Value of reinit_grafana')
     args = parser.parse_args()
 
-    recreate_ds = args.recreate_ds
+    reinit_grafana = args.reinit_grafana
 
-    if recreate_ds == 'false' or not recreate_ds:
-        recreate_ds = False
-    elif recreate_ds == 'true':
-        recreate_ds = True
+    if reinit_grafana == 'false' or not reinit_grafana:
+        reinit_grafana = False
+    elif reinit_grafana == 'true':
+        reinit_grafana = True
     else:
         raise WrongCliParams(
-            "`recreate_ds` parameter must be either true, false, or leave plank."
+            "`reinit_grafana` parameter must be either true, false, or leave plank."
         )
 
 
     initialize_env_variables()
     datasource_name = os.getenv("GRAFANA_DS_NAME")
-    main(datasource_name, recreate_ds)
+    main(datasource_name, reinit_grafana)
 
     
