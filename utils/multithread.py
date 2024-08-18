@@ -4,8 +4,9 @@ over a sequence with progress tracking using ThreadPoolExecutor
 and tqdm for progress visualization.
 """
 
-from tqdm.auto import tqdm
 from concurrent.futures import ThreadPoolExecutor
+
+from tqdm.auto import tqdm
 
 
 def map_progress(f, seq, max_workers=1):

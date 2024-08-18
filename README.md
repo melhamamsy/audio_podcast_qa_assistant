@@ -26,9 +26,6 @@ To indicate tracked directories for orchestration to decide if there are new epi
 
     # set as per your need
     ./setup.sh \
-        reinit_db="false" \
-        reindex_es="false" \
-        defacto="true" \
         reinit_prefect="false" \
         redeploy_flows="true" \
         keep_prefect_server_alive="true" 
@@ -40,7 +37,9 @@ To indicate tracked directories for orchestration to decide if there are new epi
 
 ## ad-hoc
 ```
+    prefect deployment run setup_es/ad-hoc -p reindex_es=true -p defacto=true
     prefect deployment run init_db/ad-hoc -p reinit_db=true
+    prefect deployment run setup_grafana/ad-hoc -p reinit_grafana=true -p recreate_dashboards=true
 ```
 
 ## Weekly Pipeline

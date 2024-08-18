@@ -8,8 +8,7 @@ Custom exceptions are also handled for connection and query errors.
 import json
 
 from elasticsearch import Elasticsearch
-from elasticsearch.exceptions import (NotFoundError,
-                                      RequestError)
+from elasticsearch.exceptions import NotFoundError, RequestError
 
 from exceptions.exceptions import ElasticsearchConnectionError
 
@@ -75,15 +74,23 @@ def search_elasticsearch_indecis(
     Returns:
         list: A list of index names.
     """
-    indices = list(es_client.indices.get_alias(index='*'))
+    indices = list(es_client.indices.get_alias(index="*"))
     return indices
 
 
 def get_indexed_documents_count(
-        es_client, 
-        index_name,
+    es_client,
+    index_name,
 ):
     """
+    Get the count of documents indexed in a specific Elasticsearch index.
+
+    Args:
+        es_client (Elasticsearch): The Elasticsearch client instance.
+        index_name (str): The name of the index.
+
+    Returns:
+        int: The number of documents in the index.
     """
     return es_client.count(index=index_name)
 
@@ -122,45 +129,77 @@ def load_index_settings(index_settings_path):
     return index_settings
 
 
-def index_document(es_client, index_name, document, timeout=60, replace=True):
+def delete_indexed_document(es_client, index_name, document):
     """
-    Index multiple documents into an Elasticsearch index.
+    Remove indexed documents with the same id and chunk_id from an Elasticsearch index.
 
     Args:
         es_client (Elasticsearch): The Elasticsearch client instance.
         index_name (str): The name of the index.
-        documents (list): A list of documents to index.
-        timeout (int): The timeout for indexing requests in seconds. Default is 60.
+        document (dict): The document containing the id and chunk_id for deletion.
+
+    Returns:
+        int: The number of documents deleted.
     """
-        
+    # Remove indexed documents with same id & chunk_id
+    _ids_response = es_client.search(
+        index=index_name,
+        body={
+            "query": {
+                "bool": {
+                    "must": [
+                        {"term": {"id": document["id"]}},
+                        {"term": {"chunk_id": document["chunk_id"]}},
+                    ]
+                }
+            }
+        },
+    )
+
+    # Extract document IDs from the search results
+    ## Should be one, but just to make sure
+    _ids = [hit["_id"] for hit in _ids_response["hits"]["hits"]]
+    for _id in _ids:
+        _ = es_client.delete(index=index_name, id=_id)
+
+    return len(_ids)
+
+
+def index_document(es_client, index_name, document, timeout=60, replace=True):
+    """
+    Index a document into an Elasticsearch index.
+
+    Args:
+        es_client (Elasticsearch): The Elasticsearch client instance.
+        index_name (str): The name of the index.
+        document (dict): The document to index.
+        timeout (int, optional): The timeout for indexing requests in seconds.
+                                 Default is 60.
+        replace (bool, optional): Whether to replace existing documents with
+                                  the same id and chunk_id. Defaults to True.
+
+    Returns:
+        dict: A status dictionary containing the number of documents removed and indexed.
+    """
+
     status = {
-        "removed":0,
-        "indexed":0,
+        "removed": 0,
+        "indexed": 0,
     }
 
     if replace:
-        # Remove indexed documents with same id
-        _ids_response = es_client.search(index=index_name, body={
-            "query": {
-                "term": {
-                    "id": document["id"]
-                }
-            }
-        })
-
-        # Extract document IDs from the search results
-        _ids = [hit["_id"] for hit in _ids_response["hits"]["hits"]]
-
-        for _id in _ids:
-            _ = es_client.delete(index=index_name, id=_id)
-
-        status["removed"] = len(_ids)
+        try:
+            status["removed"] += delete_indexed_document(
+                es_client, index_name, document
+            )
+        except NotFoundError:
+            pass
 
     try:
         es_client.index(index=index_name, document=document, timeout=f"{timeout}s")
         status["indexed"] = 1
     except RequestError as e:
-        print(f"{e}", "id:", document['id'], "-> Skipped...")
+        print(f"{e}", "id:", document["id"], "-> Skipped...")
 
     return status
 

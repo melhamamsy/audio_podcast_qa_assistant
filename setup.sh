@@ -2,18 +2,18 @@
 
 
 # Default params values
+
+# default of prefect deployments (you can adjust when creating a deployment run)
 reindex_es="false"
 reinit_db="false"
 defacto="true"
-reinit_prefect="false"
-redeploy_flows="true"
 reinint_grafana="false"
 recreate_dashboards="false"
-keep_prefect_server_alive="true"
 
-# Modify with your preferred models
-CHAT_MODEL=phi3
-EMBED_MODEL=locusai/multi-qa-minilm-l6-cos-v1
+# other params (needed for setup)
+redeploy_flows="false"
+reinit_prefect="false" 
+keep_prefect_server_alive="true"
 
 
 # Function to echo a new line before and after a message
@@ -131,7 +131,7 @@ docker-compose exec -e CHAT_MODEL="$CHAT_MODEL" -e EMBED_MODEL="$EMBED_MODEL" ol
 
   manifest_paths=(
     "$MANIFESTS_DIR/library/$CHAT_MODEL/latest"
-    "$MANIFESTS_DIR/$EMBED_MODEL/latest"
+    "$MANIFESTS_DIR/library/$EMBED_MODEL/latest"
   )
 
   # Function to check if a file exists

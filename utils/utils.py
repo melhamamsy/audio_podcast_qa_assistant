@@ -5,21 +5,26 @@ variable initialization, JSON document loading, duplicate
 finding, document ID generation, and JSON response parsing.
 """
 
-import hashlib
 import base64
+import glob
+import hashlib
 import json
 import os
-import glob
 import re
 import time
-import numpy as np
 
-from dotenv import load_dotenv, set_key, dotenv_values
+import numpy as np
+from dotenv import dotenv_values, load_dotenv, set_key
+
 from exceptions.exceptions import SetupWrongParam
 
 
 def print_log(*message):
     """
+    Print a log message with automatic flushing.
+
+    Args:
+        *message: Variable length argument list of messages to be printed.
     """
     print(*message, flush=True)
 
@@ -59,8 +64,10 @@ def initialize_env_variables(project_root=None, override=True):
     Initialize environment variables from a .env file.
 
     Args:
-        project_root (str, optional): The root directory of the
-        project. Default is None.
+        project_root (str, optional): The root directory of the project.
+            Default is None.
+        override (bool, optional): Whether to override existing environment variables.
+            Default is True.
     """
     # Construct the full path to the .env file
     if not project_root:
@@ -75,6 +82,13 @@ def initialize_env_variables(project_root=None, override=True):
 
 def create_or_update_dotenv_var(dotenv_var, value, project_root=None):
     """
+    Create or update a variable in the .env file.
+
+    Args:
+        dotenv_var (str): The environment variable to create or update.
+        value (str): The value to assign to the environment variable.
+        project_root (str, optional): The root directory of the project.
+            Default is None.
     """
     if not project_root:
         project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
@@ -166,16 +180,26 @@ def id_documents(docs):
 
 def generate_text_based_uuid(text, uuid_len=11):
     """
+    Generate a short, text-based UUID.
+
+    Args:
+        text (str): The input text to generate a UUID from.
+        uuid_len (int, optional): The length of the UUID. Default is 11.
+
+    Returns:
+        str: The generated short UUID.
     """
     # Hash the text using SHA-256
-    hash_object = hashlib.sha256(text.encode('utf-8'))
-    
+    hash_object = hashlib.sha256(text.encode("utf-8"))
+
     # Convert the hash to bytes
     hash_bytes = hash_object.digest()
-    
+
     # Encode the hash in base64 and strip padding, taking only the first 11 characters
-    short_uuid = base64.urlsafe_b64encode(hash_bytes).rstrip(b'=').decode('utf-8')[:uuid_len]
-    
+    short_uuid = (
+        base64.urlsafe_b64encode(hash_bytes).rstrip(b"=").decode("utf-8")[:uuid_len]
+    )
+
     return short_uuid
 
 
@@ -208,10 +232,16 @@ def parse_json_response(response):
         return json.loads(response)
     except ValueError:
         return json.loads(correct_json_string(response))
-    
+
 
 def sleep_seconds(total_wait_time, logging_interval=5):
     """
+    Sleep for a specified number of seconds while periodically logging the remaining time.
+
+    Args:
+        total_wait_time (int): The total time to wait in seconds.
+        logging_interval (int, optional): The interval at which to log the remaining time.
+            Default is 5 seconds.
     """
     logging_interval = 5
 
@@ -222,6 +252,13 @@ def sleep_seconds(total_wait_time, logging_interval=5):
 
 def flatten_list_of_lists(list_of_lists):
     """
+    Flatten a list of lists into a single list.
+
+    Args:
+        list_of_lists (list): The list of lists to flatten.
+
+    Returns:
+        list: The flattened list.
     """
     return [item for sublist in list_of_lists for item in sublist]
 
@@ -232,18 +269,38 @@ def sample_from_list(
     seed=42,
 ):
     """
+    Sample a specified number of items from a list.
+
+    Args:
+        orig_list (list): The original list to sample from.
+        sample_size (int, optional): The number of items to sample.
+            Default is None (all items).
+        seed (int, optional): The random seed for reproducibility.
+            Default is 42.
+
+    Returns:
+        list: A list of sampled items.
     """
+    np.random.seed(seed)
+
     indices = np.arange(0, len(orig_list))
     np.random.shuffle(indices)
-    
+
     return list(np.array(orig_list)[indices])[:sample_size]
 
 
 def read_json_file(path):
     """
+    Read a JSON file from the specified path.
+
+    Args:
+        path (str): The path to the JSON file.
+
+    Returns:
+        dict or None: The loaded data, or None if the file doesn't exist.
     """
     if os.path.exists(path):
-        with open(path, 'r') as file:
+        with open(path, "r", encoding="utf-8") as file:
             data = json.load(file)
     else:
         print("File doesn't exist, returning None...")
@@ -253,9 +310,16 @@ def read_json_file(path):
 
 def save_json_file(data, path, replace=False):
     """
+    Save data to a JSON file.
+
+    Args:
+        data (dict): The data to save.
+        path (str): The path to save the JSON file.
+        replace (bool, optional): Whether to replace the file if it already exists.
+            Default is False.
     """
     if not os.path.exists(path) or replace:
-        with open(path, 'w') as json_file:
+        with open(path, "w", encoding="utf-8") as json_file:
             json.dump(data, json_file, indent=4)
             print(f"Data successfully saved to {path}")
     else:
@@ -264,33 +328,60 @@ def save_json_file(data, path, replace=False):
 
 def get_json_files_in_dir(dir_path=None, return_full_path=False):
     """
+    Get a list of JSON files in a directory.
+
+    Args:
+        dir_path (str, optional): The directory to search for JSON files.
+            Default is None.
+        return_full_path (bool, optional): Whether to return the full file paths.
+            Default is False.
+
+    Returns:
+        list: A list of JSON file names or full paths.
     """
     if not dir_path:
         return []
 
-    json_files = glob.glob(
-        os.path.join(dir_path, '*.json')
-    )
+    json_files = glob.glob(os.path.join(dir_path, "*.json"))
 
     if return_full_path:
         return json_files
-    else:
-        return [json_file.split('/')[-1] for json_file in json_files]
+
+    return [json_file.split("/")[-1] for json_file in json_files]
 
 
 def standardize_array(array):
     """
+    Standardize a numpy array by subtracting the mean and
+        dividing by the standard deviation.
+
+    Args:
+        array (numpy.ndarray): The array to standardize.
+
+    Returns:
+        numpy.ndarray: The standardized array.
     """
     return (array - array.mean()) / array.std()
 
 
 def conf():
-    if os.getenv('IS_SETUP') == "true":
-        conf = '_SETUP'
-    elif os.getenv('IS_SETUP') == "false":
-        conf = ''
+    """
+    Retrieve the configuration suffix based on the 'IS_SETUP' environment variable.
+
+    Returns:
+        str: The configuration suffix.
+
+    Raises:
+        SetupWrongParam: If the 'IS_SETUP' environment variable
+            is not set to 'true' or 'false'.
+    """
+    if os.getenv("IS_SETUP") == "true":
+        conf = "_SETUP"
+    elif os.getenv("IS_SETUP") == "false":
+        conf = ""
     else:
         raise SetupWrongParam(
-            "'IS_SETUP' env variable must be either 'true' of 'false'")
-    
+            "'IS_SETUP' env variable must be either 'true' of 'false'"
+        )
+
     return conf

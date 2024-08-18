@@ -24,7 +24,7 @@
             {
                 "datasource": {
                     "type": "grafana-postgresql-datasource",
-                    "uid": "ddv07kj3w95hca"
+                    "uid": "fdv3mt88a016od"
                 },
                 "fieldConfig": {
                     "defaults": {
@@ -75,7 +75,7 @@
                     {
                         "datasource": {
                             "type": "grafana-postgresql-datasource",
-                            "uid": "ddv07kj3w95hca"
+                            "uid": "fdv3mt88a016od"
                         },
                         "editorMode": "code",
                         "format": "table",
@@ -107,7 +107,7 @@
             {
                 "datasource": {
                     "type": "grafana-postgresql-datasource",
-                    "uid": "ddv07kj3w95hca"
+                    "uid": "fdv3mt88a016od"
                 },
                 "fieldConfig": {
                     "defaults": {
@@ -159,7 +159,7 @@
                     {
                         "datasource": {
                             "type": "grafana-postgresql-datasource",
-                            "uid": "ddv07kj3w95hca"
+                            "uid": "fdv3mt88a016od"
                         },
                         "editorMode": "code",
                         "format": "table",
@@ -191,7 +191,7 @@
             {
                 "datasource": {
                     "type": "grafana-postgresql-datasource",
-                    "uid": "ddv07kj3w95hca"
+                    "uid": "fdv3mt88a016od"
                 },
                 "fieldConfig": {
                     "defaults": {
@@ -238,12 +238,12 @@
                     {
                         "datasource": {
                             "type": "grafana-postgresql-datasource",
-                            "uid": "ddv07kj3w95hca"
+                            "uid": "fdv3mt88a016od"
                         },
                         "editorMode": "code",
                         "format": "table",
                         "rawQuery": true,
-                        "rawSql": "SELECT\r\n  relevance,\r\n  COUNT(*) as count\r\nFROM conversations\r\nWHERE timestamp BETWEEN $__timeFrom() AND $__timeTo()\r\nGROUP BY relevance",
+                        "rawSql": "SELECT\r\n  relevance,\r\n  COUNT(*) as count\r\nFROM conversations\r\nWHERE timestamp BETWEEN $__timeFrom() AND $__timeTo()\r\nGROUP BY relevance\r\nORDER BY relevance DESC",
                         "refId": "A",
                         "sql": {
                             "columns": [
@@ -270,7 +270,7 @@
             {
                 "datasource": {
                     "type": "grafana-postgresql-datasource",
-                    "uid": "ddv07kj3w95hca"
+                    "uid": "fdv3mt88a016od"
                 },
                 "fieldConfig": {
                     "defaults": {
@@ -347,7 +347,7 @@
                     {
                         "datasource": {
                             "type": "grafana-postgresql-datasource",
-                            "uid": "ddv07kj3w95hca"
+                            "uid": "fdv3mt88a016od"
                         },
                         "editorMode": "code",
                         "format": "table",
@@ -379,7 +379,7 @@
             {
                 "datasource": {
                     "type": "grafana-postgresql-datasource",
-                    "uid": "ddv07kj3w95hca"
+                    "uid": "fdv3mt88a016od"
                 },
                 "fieldConfig": {
                     "defaults": {
@@ -456,7 +456,7 @@
                     {
                         "datasource": {
                             "type": "grafana-postgresql-datasource",
-                            "uid": "ddv07kj3w95hca"
+                            "uid": "fdv3mt88a016od"
                         },
                         "editorMode": "code",
                         "format": "table",
@@ -488,7 +488,7 @@
             {
                 "datasource": {
                     "type": "grafana-postgresql-datasource",
-                    "uid": "ddv07kj3w95hca"
+                    "uid": "fdv3mt88a016od"
                 },
                 "fieldConfig": {
                     "defaults": {
@@ -564,7 +564,7 @@
                     {
                         "datasource": {
                             "type": "grafana-postgresql-datasource",
-                            "uid": "ddv07kj3w95hca"
+                            "uid": "fdv3mt88a016od"
                         },
                         "editorMode": "code",
                         "format": "table",
@@ -596,7 +596,7 @@
             {
                 "datasource": {
                     "type": "grafana-postgresql-datasource",
-                    "uid": "ddv07kj3w95hca"
+                    "uid": "fdv3mt88a016od"
                 },
                 "fieldConfig": {
                     "defaults": {
@@ -673,7 +673,7 @@
                     {
                         "datasource": {
                             "type": "grafana-postgresql-datasource",
-                            "uid": "ddv07kj3w95hca"
+                            "uid": "fdv3mt88a016od"
                         },
                         "editorMode": "code",
                         "format": "table",
@@ -714,7 +714,7 @@
         },
         "timepicker": {},
         "timezone": "browser",
-        "title": "lex_fridman_podcast_qa_monitoring",
+        "title": "lex_fridman_podcast_monitoring",
         "version": 0,
         "weekStart": ""
     },
