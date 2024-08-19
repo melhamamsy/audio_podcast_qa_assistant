@@ -1,8 +1,12 @@
-[tool.pylint]
-init-hook = "import sys; sys.path.append('/mnt/workspace/__ing/llming/DTC/audio_podcast_qa_assistant');"
-
 [tool.pylint.messages_control]
 disable = [
     "redefined-outer-name",
     "not-context-manager"
+]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+    "ignore:.*some specific warning message.*"
 ]

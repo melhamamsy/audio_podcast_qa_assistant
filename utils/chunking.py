@@ -27,7 +27,7 @@ def chunk_large_text(text, max_chunk_size=1000):
         list of str: A list of text chunks.
     """
     doc = NLP(text)
-    sentences = [sent.text for sent in doc.sents]
+    sentences = [sent.text.strip() for sent in doc.sents]
 
     chunks = []
     current_chunk = ""
@@ -35,10 +35,12 @@ def chunk_large_text(text, max_chunk_size=1000):
     i = 0
     while i < len(sentences):
         sentence = sentences[i]
-        if "?" in sentence.strip():
-            # Handle the question and its following answer
+
+        # Handle questions and their answers
+        if "?" in sentence:
             question_chunk = sentence
             i += 1
+
             # Include following sentences as the answer, ensuring not to exceed the max_chunk_size
             while (
                 i < len(sentences)
@@ -46,7 +48,12 @@ def chunk_large_text(text, max_chunk_size=1000):
             ):
                 question_chunk += " " + sentences[i]
                 i += 1
+
             # Add the combined question-answer chunk to the list
+            if len(current_chunk) > 0:
+                chunks.append(current_chunk.strip())
+                current_chunk = ""
+
             chunks.append(question_chunk.strip())
         else:
             # If the current chunk can accommodate the sentence

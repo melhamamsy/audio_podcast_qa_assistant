@@ -144,16 +144,21 @@ def merge_transcripts(transcripts):
         # Strip leading/trailing whitespace from the transcript
         transcript = transcript.strip()
 
-        # If it's not the first chunk, try to merge smoothly with the previous one
         if i > 0:
-            # Handle cases where the previous chunk ends in an incomplete sentence
-            if re.match(r"^\w", transcript):
-                # Append a space if the transcript starts with a word character
-                merged_transcript += " " + transcript
-            else:
-                # Directly append if the transcript starts with punctuation
+            # Handle cases where the transcript starts with punctuation (comma or dot)
+            if re.match(r"^[,.]", transcript):
+                # Remove the ending punctuation from the previous chunk if needed
+                if merged_transcript.endswith(".") or merged_transcript.endswith(","):
+                    merged_transcript = merged_transcript[:-1]
+
+                # Directly append the next transcript chunk
                 merged_transcript += transcript
+            else:
+                # If the transcript starts with a word character or other punctuation,
+                # append with a space
+                merged_transcript += " " + transcript
         else:
+            # For the first chunk, directly add the transcript
             merged_transcript += transcript
 
     # Final pass to fix any spacing issues

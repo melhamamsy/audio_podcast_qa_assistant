@@ -54,3 +54,9 @@ To indicate tracked directories for orchestration to decide if there are new epi
 kill $(ps aux | grep "prefect server" | grep -v grep | awk '{print $2}') 2>/dev/null
 docker-compose down
 ```
+
+## Formatting
+pylint $(find . -name "*.py")
+git config core.hooksPath git-hooks
+
+

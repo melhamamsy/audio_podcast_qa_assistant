@@ -1,0 +1,29 @@
+#!/bin/bash
+
+echo "===================================> Checking for hard-coded secrets..."
+if git grep -E "[a-zA-Z0-9]{20,}"; then
+    echo "Hardcoded secret detected, aborting."
+    exit 1
+fi
+echo "===================================> Done."; echo
+
+
+echo "===================================> Formatting Code using black & isort..."
+black .
+isort .
+echo "===================================> Done."; echo
+
+
+echo "===================================> Linting Code using pylint..."
+pylint_output=$(pylint $(find . -name "*.py") --exit-zero)
+echo "$pylint_output"
+
+
+score=$(echo "$pylint_output" | grep "Your code has been rated at" | awk '{print $7}' | cut -d'/' -f1)
+if [ "$score" != "10.00" ]; then
+    echo "Pylint score is less than 10/10 ($score/10). Commit aborted."
+    exit 1
+else
+    echo "Pylint score is 10/10. Proceeding with commit."
+fi
+echo "===================================> Done."; echo
