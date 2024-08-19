@@ -2,6 +2,7 @@
 This module defines custom exceptions for handling all modules related errors.
 """
 
+
 class ElasticsearchError(Exception):
     """Base class for all Elasticsearch-related exceptions."""
 

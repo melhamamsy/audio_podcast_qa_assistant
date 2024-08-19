@@ -24,8 +24,8 @@ def create_ollama_client(ollama_host, ollama_port):
         OpenAI: An instance of the OpenAI client configured for Ollama.
     """
     return OpenAI(
-        base_url=f'http://{ollama_host}:{ollama_port}/v1/',
-        api_key='ollama',
+        base_url=f"http://{ollama_host}:{ollama_port}/v1/",
+        api_key="ollama",
     )
 
 

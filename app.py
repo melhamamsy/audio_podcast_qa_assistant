@@ -9,12 +9,8 @@ import uuid
 
 import streamlit as st
 
-from utils.postgres import (
-    get_feedback_stats,
-    get_recent_conversations,
-    save_conversation,
-    save_feedback,
-)
+from utils.postgres import (get_feedback_stats, get_recent_conversations,
+                            save_conversation, save_feedback)
 from utils.query import get_answer
 
 
@@ -31,7 +27,7 @@ def print_log(*message):
 def initialize_session_state():
     """
     Initialize session state variables.
-    
+
     Ensures that necessary session state variables like conversation ID,
     feedback count, and submission status are set.
     """

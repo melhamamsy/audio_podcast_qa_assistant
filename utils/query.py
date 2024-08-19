@@ -16,22 +16,13 @@ import json
 import os
 import time
 
-from exceptions.exceptions import WrongPomptParams, QueryTypeWrongValueError
+from exceptions.exceptions import QueryTypeWrongValueError, WrongPomptParams
 from utils.ollama import get_embedding
-from utils.utils import (
-    find_parameters,
-    flatten_list_of_lists,
-    is_sublist,
-    parse_json_response,
-)
-from utils.variables import (
-    ES_CLIENT,
-    EVAL_PROMPT_TEMPLATE_PATH,
-    INDEX_NAME,
-    OLLAMA_CLIENT,
-    OPENAI_CLIENT,
-    QA_PROMPT_TEMPLATE_PATH,
-)
+from utils.utils import (find_parameters, flatten_list_of_lists, is_sublist,
+                         parse_json_response)
+from utils.variables import (ES_CLIENT, EVAL_PROMPT_TEMPLATE_PATH, INDEX_NAME,
+                             OLLAMA_CLIENT, OPENAI_CLIENT,
+                             QA_PROMPT_TEMPLATE_PATH)
 
 
 def build_context(search_results):

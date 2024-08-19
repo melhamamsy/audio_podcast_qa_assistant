@@ -9,7 +9,7 @@ import io
 import os
 import sys
 
-from prefect.client import get_client, PrefectClient
+from prefect.client import PrefectClient, get_client
 
 
 async def list_work_pools():

@@ -5,15 +5,12 @@ Unit tests for utils.elasticsearch module.
 import pytest
 
 # from utils.elasticsearch import get_index_mapping
-from utils.elasticsearch import (
-    create_elasticsearch_client,
-    create_elasticsearch_index,
-    delete_indexed_document,
-    get_indexed_documents_count,
-    index_document,
-    remove_elasticsearch_index,
-    search_elasticsearch_indecis,
-)
+from utils.elasticsearch import (create_elasticsearch_client,
+                                 create_elasticsearch_index,
+                                 delete_indexed_document,
+                                 get_indexed_documents_count, index_document,
+                                 remove_elasticsearch_index,
+                                 search_elasticsearch_indecis)
 
 
 @pytest.fixture(scope="module")

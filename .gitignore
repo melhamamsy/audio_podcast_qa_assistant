@@ -10,3 +10,4 @@ ollama_data/
 vectorized_documents.pkl
 .prefect
 *.mp3
+.vscode

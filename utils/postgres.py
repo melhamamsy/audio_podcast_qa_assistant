@@ -19,13 +19,8 @@ import psycopg
 from psycopg.errors import DatabaseError, OperationalError
 from psycopg.rows import dict_row
 
-from utils.variables import (
-    POSTGRES_DB,
-    POSTGRES_HOST,
-    POSTGRES_PASSWORD,
-    POSTGRES_PORT,
-    POSTGRES_USER,
-)
+from utils.variables import (POSTGRES_DB, POSTGRES_HOST, POSTGRES_PASSWORD,
+                             POSTGRES_PORT, POSTGRES_USER)
 
 TZ = ZoneInfo("Africa/Cairo")
 
