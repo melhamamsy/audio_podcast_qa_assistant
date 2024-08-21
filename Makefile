@@ -44,24 +44,24 @@ compose:
 
 # Format py files
 format_py:
-	isort $(PY_FILES)
-	black $(PY_FILES)
+	@isort $(PY_FILES)
+	@black $(PY_FILES)
 
 # Linting py files
 lint_py:
-	pylint $(PY_FILES) --exit-zero
+	@pylint $(PY_FILES) --exit-zero
 
 # Running unit_tests
 unit_tests:
-	pytest ./tests
+	@pytest ./tests
 
 # Running integration_tests
 integration_tests:
-	./integration_tests/connectivity_check.sh
+	@./integration_tests/connectivity_check.sh
 
 # Download ollama models specified as CHAT_MODEL & EMBED_MODEL
 setup_ollama:
-	./scripts/setup_ollama.sh
+	@./scripts/setup_ollama.sh
 
 # Start prefect server and worker
 prefect_start_server:
@@ -147,3 +147,22 @@ resetup_grafana:
 		prefect deployment run setup_grafana/ad-hoc \
 		-p reinit_grafana=true \
 		-p recreate_dashboards=true
+
+# Get number of docs in es index for a passed id (not _id)
+es_count_filtered:
+	@if [ -z "$(ID)" ]; then \
+		curl -X GET "http://${ELASTIC_SETUP_HOST}:${ELASTIC_PORT}/${ES_INDEX_NAME}/_count" \
+		-H "Content-Type: application/json" \
+		-d '{}'; \
+	else \
+		curl -X GET "http://${ELASTIC_SETUP_HOST}:${ELASTIC_PORT}/${ES_INDEX_NAME}/_count" \
+		-H "Content-Type: application/json" \
+		-d '{"query":{"terms":{"_id":["$(ID)"]}}}'; \
+	fi
+
+# Run process_new_episodes once (this wouldn't affect its weekly schedule)
+process_new_episodes_run:
+	@PYTHONPATH=./ conda run -n $(ENV_NAME) \
+		prefect deployment run process_new_episodes/midnight-every-sunday
+
+.PHONY: integration_tests

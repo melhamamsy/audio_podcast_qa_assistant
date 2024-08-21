@@ -167,8 +167,9 @@ def transcripe_and_cache_episodes(
         return
 
     cached_episodes = get_json_files_in_dir(transcripts_cache_dir)
+    dataset_len = len(dataset)
 
-    for i in tqdm(range(0, len(dataset))):
+    for i in tqdm(range(0, dataset_len)):
         episode = dataset[i]
         episode_title = episode["title"].split(" | ")[0]
 
@@ -182,6 +183,9 @@ def transcripe_and_cache_episodes(
                 target_sampling_rate=16_000,
             )
 
+            if i % (max(dataset_len, 20) // 20) == 0:
+                print(f"{i}/{dataset_len} items processed so far...")
+
             ## cache
             if transcripts_cache_dir:
                 del episode["audio"]
@@ -190,6 +194,7 @@ def transcripe_and_cache_episodes(
                     episode_title + ".json",
                 )
                 save_json_file(episode, path, replace=True)
+    print(f"{dataset_len}/{dataset_len} items processed.")
 
 
 def load_cached_episodes(

@@ -35,7 +35,7 @@ def map_progress(f, seq, max_workers=1):
             future.add_done_callback(lambda p: progress.update())
             results.append(future.result())
 
-            if i % (seq_len // 20) == 0:
+            if i % (max(seq_len, 20) // 20) == 0:
                 print(f"{len(results)}/{seq_len} items processed so far...")
 
         print(f"{len(results)}/{seq_len} items processed.")

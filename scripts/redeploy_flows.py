@@ -222,6 +222,7 @@ def process_new_episodes(bucket_dir):
             )
         )
 
+        print(_)  # Just to halt the running of next task
         task(update_bucket_state, log_prints=True)(bucket_dir, new_dirs)
     else:
         print("Found no new episodes, nothing to do...")
