@@ -5,9 +5,14 @@ include .env
 export $(shell sed 's/=.*//' .env)
 
 # Define variables
-PYTHON_VERSION = 3.11.5
-DEV_REQUIREMENTS = requirements-dev.txt
 PY_FILES = $(shell find . -name "*.py")
+
+REINDEX_ES_DEFAULT=false
+REINIT_DB_DEFAULT=false
+DEFACTO_DEFAULT=true
+REINIT_GRAFANA_DEFAULT=false
+RECREATE_DASHBOARDS_DEFAULT=false
+
 
 # Export the variable for all targets
 .EXPORT_ALL_VARIABLES: 
@@ -17,7 +22,7 @@ PYDEVD_DISABLE_FILE_VALIDATION=1
 create_local_env:
 	conda create -y -n $(ENV_NAME) python=$(PYTHON_VERSION)
 	conda run -n $(ENV_NAME) pip install -r requirements.txt
-	conda run -n $(ENV_NAME) pip install -r $(DEV_REQUIREMENTS)
+	conda run -n $(ENV_NAME) pip install -r requirements-dev.txt
 	conda run -n $(ENV_NAME) python -m ipykernel install --user --name=$(ENV_NAME) --display-name "Python ($(ENV_NAME))"
 
 # Target to remove the Jupyter kernel and delete the conda environment
@@ -99,14 +104,46 @@ prefect_stop_server:
 # Start a new prefect worker
 prefect_start_worker:
 	@conda run -n $(ENV_NAME) prefect worker start --pool ${WORK_POOL_NAME} &
+	@sleep 2
+	@echo "\033[0;32mWorker started successfully\033[0m"
+	@count=$$(ps aux | grep "prefect worker start --pool $(WORK_POOL_NAME)" | grep -v grep | wc -l); \
+		echo "Total number of active workers: $$((count / 2))"
 
 # Kill all prefect workers
 prefect_kill_workers:
-	@./scripts/kill_prefect_workers.sh 
+	@./scripts/kill_prefect_workers.sh
+
+# Re-initialize prefect db & work-pool
+reinit_prefect:
+	@./scripts/reinit_prefect.sh
+
+# Deploy or redeploy prefect flows
+redeploy_flows:
+	@echo "Re-deploying prefect flows ..."
+	@PYTHONPATH=./ conda run -n $(ENV_NAME) python scripts/redeploy_flows.py \
+		--reindex_es "$(REINDEX_ES_DEFAULT)" \
+		--reinit_db "$(REINIT_DB_DEFAULT)" \
+		--defacto "$(DEFACTO_DEFAULT)" \
+		--reinit_grafana "$(REINIT_GRAFANA_DEFAULT)" \
+		--recreate_dashboards "$(RECREATE_DASHBOARDS_DEFAULT)"
+	@echo "\033[0;32mSuccessfully redeployed prefect flows.\033[0m"
 
 # Re-indexing es with defacto mode
 reindex_es_defacto:
-	conda run -n $(ENV_NAME) \
+	@PYTHONPATH=./ conda run -n $(ENV_NAME) \
 		prefect deployment run setup_es/ad-hoc \
 		-p reindex_es=true \
 		-p defacto=true
+
+# Re-initilizing app backend db
+reinit_db:
+	@PYTHONPATH=./ conda run -n $(ENV_NAME) \
+		prefect deployment run init_db/ad-hoc \
+		-p reinit_db=true
+
+# Re-setting up Grafana data source & dashboards
+resetup_grafana:
+	@PYTHONPATH=./ conda run -n $(ENV_NAME) \
+		prefect deployment run setup_grafana/ad-hoc \
+		-p reinit_grafana=true \
+		-p recreate_dashboards=true

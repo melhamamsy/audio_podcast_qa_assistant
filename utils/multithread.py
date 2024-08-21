@@ -15,10 +15,10 @@ def map_progress(f, seq, max_workers=1):
 
     Args:
         f (callable): The function to apply to each element in the
-        sequence.
+            sequence.
         seq (iterable): The sequence of elements to process.
         max_workers (int, optional): The maximum number of threads
-        to use. Default is 1.
+            to use. Default is 1.
 
     Returns:
         list: A list of results from applying the function to each
@@ -27,17 +27,17 @@ def map_progress(f, seq, max_workers=1):
     pool = ThreadPoolExecutor(max_workers=max_workers)
 
     results = []
+    seq_len = len(seq)
 
-    with tqdm(total=len(seq)) as progress:
-        futures = []
-
-        for el in seq:
+    with tqdm(total=seq_len) as progress:
+        for i, el in enumerate(seq):
             future = pool.submit(f, el)
             future.add_done_callback(lambda p: progress.update())
-            futures.append(future)
+            results.append(future.result())
 
-        for future in futures:
-            result = future.result()
-            results.append(result)
+            if i % (seq_len // 20) == 0:
+                print(f"{len(results)}/{seq_len} items processed so far...")
+
+        print(f"{len(results)}/{seq_len} items processed.")
 
     return results

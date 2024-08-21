@@ -24,7 +24,7 @@
             {
                 "datasource": {
                     "type": "grafana-postgresql-datasource",
-                    "uid": "fdv3mt88a016od"
+                    "uid": "edvik6ggsswlce"
                 },
                 "fieldConfig": {
                     "defaults": {
@@ -75,7 +75,7 @@
                     {
                         "datasource": {
                             "type": "grafana-postgresql-datasource",
-                            "uid": "fdv3mt88a016od"
+                            "uid": "edvik6ggsswlce"
                         },
                         "editorMode": "code",
                         "format": "table",
@@ -107,7 +107,7 @@
             {
                 "datasource": {
                     "type": "grafana-postgresql-datasource",
-                    "uid": "fdv3mt88a016od"
+                    "uid": "edvik6ggsswlce"
                 },
                 "fieldConfig": {
                     "defaults": {
@@ -159,7 +159,7 @@
                     {
                         "datasource": {
                             "type": "grafana-postgresql-datasource",
-                            "uid": "fdv3mt88a016od"
+                            "uid": "edvik6ggsswlce"
                         },
                         "editorMode": "code",
                         "format": "table",
@@ -191,7 +191,7 @@
             {
                 "datasource": {
                     "type": "grafana-postgresql-datasource",
-                    "uid": "fdv3mt88a016od"
+                    "uid": "edvik6ggsswlce"
                 },
                 "fieldConfig": {
                     "defaults": {
@@ -238,7 +238,7 @@
                     {
                         "datasource": {
                             "type": "grafana-postgresql-datasource",
-                            "uid": "fdv3mt88a016od"
+                            "uid": "edvik6ggsswlce"
                         },
                         "editorMode": "code",
                         "format": "table",
@@ -270,7 +270,7 @@
             {
                 "datasource": {
                     "type": "grafana-postgresql-datasource",
-                    "uid": "fdv3mt88a016od"
+                    "uid": "edvik6ggsswlce"
                 },
                 "fieldConfig": {
                     "defaults": {
@@ -347,7 +347,7 @@
                     {
                         "datasource": {
                             "type": "grafana-postgresql-datasource",
-                            "uid": "fdv3mt88a016od"
+                            "uid": "edvik6ggsswlce"
                         },
                         "editorMode": "code",
                         "format": "table",
@@ -379,7 +379,7 @@
             {
                 "datasource": {
                     "type": "grafana-postgresql-datasource",
-                    "uid": "fdv3mt88a016od"
+                    "uid": "edvik6ggsswlce"
                 },
                 "fieldConfig": {
                     "defaults": {
@@ -456,7 +456,7 @@
                     {
                         "datasource": {
                             "type": "grafana-postgresql-datasource",
-                            "uid": "fdv3mt88a016od"
+                            "uid": "edvik6ggsswlce"
                         },
                         "editorMode": "code",
                         "format": "table",
@@ -488,7 +488,7 @@
             {
                 "datasource": {
                     "type": "grafana-postgresql-datasource",
-                    "uid": "fdv3mt88a016od"
+                    "uid": "edvik6ggsswlce"
                 },
                 "fieldConfig": {
                     "defaults": {
@@ -564,7 +564,7 @@
                     {
                         "datasource": {
                             "type": "grafana-postgresql-datasource",
-                            "uid": "fdv3mt88a016od"
+                            "uid": "edvik6ggsswlce"
                         },
                         "editorMode": "code",
                         "format": "table",
@@ -596,7 +596,7 @@
             {
                 "datasource": {
                     "type": "grafana-postgresql-datasource",
-                    "uid": "fdv3mt88a016od"
+                    "uid": "edvik6ggsswlce"
                 },
                 "fieldConfig": {
                     "defaults": {
@@ -673,7 +673,7 @@
                     {
                         "datasource": {
                             "type": "grafana-postgresql-datasource",
-                            "uid": "fdv3mt88a016od"
+                            "uid": "edvik6ggsswlce"
                         },
                         "editorMode": "code",
                         "format": "table",

@@ -4,11 +4,11 @@ Unit tests for utils.elasticsearch module.
 
 import pytest
 
-# from utils.elasticsearch import get_index_mapping
 from utils.elasticsearch import (
     create_elasticsearch_client,
     create_elasticsearch_index,
     delete_indexed_document,
+    get_index_mapping,
     get_indexed_documents_count,
     index_document,
     remove_elasticsearch_index,
@@ -40,7 +40,7 @@ def setup_index(es_client, test_index):
             "dynamic": "false",
             "properties": {
                 "id": {"type": "keyword"},
-                "chunk_id": {"type": "integer"},
+                "chunk_id": {"type": "keyword"},
                 "text": {"type": "text"},
             },
         },
@@ -57,12 +57,12 @@ def setup_index(es_client, test_index):
     yield  # Control passes to the test function
 
     # Clean up: Remove the index after the test
-    if es_client.indices.exists(index=test_index):
-        es_client.indices.delete(index=test_index)
+    remove_elasticsearch_index(es_client, test_index)
 
 
-def test_create_and_remove_index(es_client, test_index):
+def test_create_and_remove_index(es_client, test_index, setup_index):
     """Test creating and removing an Elasticsearch index."""
+    _ = setup_index
     index_settings = {
         "settings": {"number_of_shards": 1, "number_of_replicas": 0},
         "mappings": {
@@ -86,8 +86,9 @@ def test_create_and_remove_index(es_client, test_index):
     assert test_index not in indices
 
 
-def test_index_document_and_count(es_client, test_index):
+def test_index_document_and_count(es_client, test_index, setup_index):
     """Test indexing a document and counting the documents."""
+    _ = setup_index
     document = {"id": "1", "chunk_id": "0", "text": "This is a test document."}
 
     # Index the document
@@ -102,15 +103,17 @@ def test_index_document_and_count(es_client, test_index):
     assert count["count"] == 1
 
 
-# def test_get_index_mapping(es_client, test_index):
-#     """Test retrieving the index mapping."""
-#     mapping = get_index_mapping(es_client, test_index)
-#     expected_mapping = {"id": "keyword", "chunk_id": "keyword", "text": "text"}
-#     assert mapping == expected_mapping
+def test_get_index_mapping(es_client, test_index, setup_index):
+    """Test retrieving the index mapping."""
+    _ = setup_index
+    mapping = get_index_mapping(es_client, test_index)
+    expected_mapping = {"id": "keyword", "chunk_id": "keyword", "text": "text"}
+    assert mapping == expected_mapping
 
 
-def test_delete_document(es_client, test_index):
+def test_delete_document(es_client, test_index, setup_index):
     """Test deleting a specific document."""
+    _ = setup_index
     document = {"id": "1", "chunk_id": "0", "text": "This is a test document."}
     index_document(es_client, test_index, document)
 

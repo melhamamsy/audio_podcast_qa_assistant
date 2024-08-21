@@ -61,7 +61,7 @@ from utils.variables import (
     INDEX_NAME,
     INDEX_SETTINGS_PATH,
     POSTGRES_DB,
-    POSTGRES_HOST,
+    POSTGRES_GRAFANA_HOST,
     POSTGRES_PASSWORD,
     POSTGRES_PORT,
     POSTGRES_USER,
@@ -242,7 +242,7 @@ def chunk_episodes(
     if defacto:
         print_log("chunk_episodes: Defacto mode is on ...")
         path = os.path.join(
-            PROJECT_DIR, "data/generated_document_embeddings/embeddings.pkl"
+            PROJECT_DIR, "data/generated_document_embeddings/vectorized_documents.pkl"
         )
         with open(path, "rb") as file:
             documents = pickle.load(file)
@@ -468,7 +468,7 @@ def reinit_grafana_datasource(datasource_name, reinit_grafana=False):
     datasource_info = {
         "name": datasource_name,
         "type": "grafana-postgresql-datasource",
-        "url": f"{POSTGRES_HOST}:{POSTGRES_PORT}",
+        "url": f"{POSTGRES_GRAFANA_HOST}:{POSTGRES_PORT}",
         "access": "proxy",
         "user": POSTGRES_USER,
         "secureJsonData": {"password": POSTGRES_PASSWORD},
@@ -482,6 +482,9 @@ def reinit_grafana_datasource(datasource_name, reinit_grafana=False):
     if not get_grafana_data_source(datasource_name):
         print(f"Datasource {datasource_name} doesn't exist, recreating")
         create_grafana_data_source(datasource_info)
+
+        print("Waiting for some seconds till DS connection is ready...")
+        sleep_seconds(20)
     elif reinit_grafana:
         print(f"Datasource {datasource_name} exists, recreating...")
         drop_grafana_data_source(datasource_name)

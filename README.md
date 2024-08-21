@@ -1,7 +1,7 @@
-<!-- pgcli postgresql://postgres:example@localhost:5432/lex_fridman_podcast -->
+<!-- pgcli postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SETUP_HOST:$POSTGRES_PORT/$POSTGRES_DB -->
 
-### Needed for Chunking
-```python -m spacy download en_core_web_sm```
+<!-- ### Needed for Chunking -->
+<!-- ```python -m spacy download en_core_web_sm``` -->
 
 ### Needed for reading mp3 files
 sudo apt-get update

@@ -91,7 +91,7 @@ def create_or_update_dotenv_var(dotenv_var, value, project_root=None):
             Default is None.
     """
     if not project_root:
-        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))
+        project_root = os.getenv("PROJECT_SETUP_DIR")
 
     dotenv_path = os.path.join(project_root, ".env")
     env_variables = dotenv_values(dotenv_path)
