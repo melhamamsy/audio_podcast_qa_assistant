@@ -9,8 +9,12 @@ import uuid
 
 import streamlit as st
 
-from utils.postgres import (get_feedback_stats, get_recent_conversations,
-                            save_conversation, save_feedback)
+from utils.postgres import (
+    get_feedback_stats,
+    get_recent_conversations,
+    save_conversation,
+    save_feedback,
+)
 from utils.query import get_answer
 
 

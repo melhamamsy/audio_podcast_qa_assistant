@@ -13,8 +13,12 @@ import json
 
 import requests
 
-from utils.variables import (GRAFANA_ADMIN_PASSWORD, GRAFANA_ADMIN_TOKEN,
-                             GRAFANA_ADMIN_USER, GRAFANA_URL)
+from utils.variables import (
+    GRAFANA_ADMIN_PASSWORD,
+    GRAFANA_ADMIN_TOKEN,
+    GRAFANA_ADMIN_USER,
+    GRAFANA_URL,
+)
 
 
 def is_grafana_token_valid():

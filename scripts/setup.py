@@ -15,15 +15,29 @@ from prefect.utilities.annotations import quote
 
 from utils.postgres import init_db
 from utils.prefect import create_deployment_run, get_deployment_id_by_name
-from utils.tasks import (check_for_new_data, chunk_episodes,
-                         create_whisper_processor_and_model,
-                         index_documents_es, init_es, load_cached_episodes,
-                         load_podcast_data, recreate_grafana_dashboard,
-                         reinit_grafana_datasource, set_grafana_token,
-                         transcripe_and_cache_episodes, update_bucket_state)
+from utils.tasks import (
+    check_for_new_data,
+    chunk_episodes,
+    create_whisper_processor_and_model,
+    index_documents_es,
+    init_es,
+    load_cached_episodes,
+    load_podcast_data,
+    recreate_grafana_dashboard,
+    reinit_grafana_datasource,
+    set_grafana_token,
+    transcripe_and_cache_episodes,
+    update_bucket_state,
+)
 from utils.utils import print_log
-from utils.variables import (CACHE_DIR, ES_CLIENT, INDEX_NAME, OLLAMA_CLIENT,
-                             PROJECT_DIR, WORK_POOL_NAME)
+from utils.variables import (
+    CACHE_DIR,
+    ES_CLIENT,
+    INDEX_NAME,
+    OLLAMA_CLIENT,
+    PROJECT_DIR,
+    WORK_POOL_NAME,
+)
 
 
 def parse_cli_args():

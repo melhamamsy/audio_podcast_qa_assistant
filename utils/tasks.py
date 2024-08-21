@@ -21,25 +21,52 @@ from transformers import WhisperForConditionalGeneration, WhisperProcessor
 
 from utils.asr import read_mp3, transcripe_episode
 from utils.chunking import chunk_large_text, preindex_process_text
-from utils.elasticsearch import (create_elasticsearch_index, get_index_mapping,
-                                 get_indexed_documents_count, index_document,
-                                 load_index_settings,
-                                 remove_elasticsearch_index,
-                                 search_elasticsearch_indecis)
-from utils.grafana import (create_dashboard, create_grafana_data_source,
-                           create_grafana_token, delete_dashboard,
-                           delete_grafana_token, drop_grafana_data_source,
-                           get_dashboard_uid_by_name, get_grafana_data_source,
-                           get_grafana_token_ids, is_grafana_token_valid)
+from utils.elasticsearch import (
+    create_elasticsearch_index,
+    get_index_mapping,
+    get_indexed_documents_count,
+    index_document,
+    load_index_settings,
+    remove_elasticsearch_index,
+    search_elasticsearch_indecis,
+)
+from utils.grafana import (
+    create_dashboard,
+    create_grafana_data_source,
+    create_grafana_token,
+    delete_dashboard,
+    delete_grafana_token,
+    drop_grafana_data_source,
+    get_dashboard_uid_by_name,
+    get_grafana_data_source,
+    get_grafana_token_ids,
+    is_grafana_token_valid,
+)
 from utils.multithread import map_progress
 from utils.ollama import embed_document
-from utils.utils import (create_or_update_dotenv_var, get_json_files_in_dir,
-                         initialize_env_variables, print_log, read_json_file,
-                         save_json_file, sleep_seconds, standardize_array)
-from utils.variables import (CACHE_DIR, ES_CLIENT, EXPECTED_MAPPING,
-                             INDEX_NAME, INDEX_SETTINGS_PATH, POSTGRES_DB,
-                             POSTGRES_HOST, POSTGRES_PASSWORD, POSTGRES_PORT,
-                             POSTGRES_USER, PROJECT_DIR)
+from utils.utils import (
+    create_or_update_dotenv_var,
+    get_json_files_in_dir,
+    initialize_env_variables,
+    print_log,
+    read_json_file,
+    save_json_file,
+    sleep_seconds,
+    standardize_array,
+)
+from utils.variables import (
+    CACHE_DIR,
+    ES_CLIENT,
+    EXPECTED_MAPPING,
+    INDEX_NAME,
+    INDEX_SETTINGS_PATH,
+    POSTGRES_DB,
+    POSTGRES_HOST,
+    POSTGRES_PASSWORD,
+    POSTGRES_PORT,
+    POSTGRES_USER,
+    PROJECT_DIR,
+)
 
 
 def load_podcast_data(

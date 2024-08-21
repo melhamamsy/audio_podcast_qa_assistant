@@ -30,6 +30,11 @@ make format_py
 echo "===================================> Done."; echo
 
 
+echo "===================================> Tracking changes made by black & isort..."
+git add .
+echo "===================================> Done."; echo
+
+
 echo "===================================> Linting Code using pylint..."
 pylint_output=$(make lint_py)
 echo "$pylint_output"
