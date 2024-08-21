@@ -5,6 +5,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 COPY requirements-app.txt .
+RUN apt update && apt install -y curl  && curl --version
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements-app.txt
 
@@ -13,5 +14,6 @@ COPY prompts/ prompts/
 COPY config/ config/
 COPY utils/ utils/
 COPY app.py .
+
 
 CMD ["streamlit", "run", "app.py"]

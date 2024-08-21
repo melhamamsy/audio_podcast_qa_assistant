@@ -1,7 +1,9 @@
 hf_cache/
-elasticsearch_data/
 data/
 bucket/
 notebooks/
+git-hook/
+tests/
 README.md
 requirements.txt
+requirements-dev.txt

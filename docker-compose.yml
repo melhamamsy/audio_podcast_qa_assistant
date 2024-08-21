@@ -8,14 +8,23 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
     volumes:
-      - ./elasticsearch_data:/usr/share/elasticsearch/data
+      - elasticsearch_data:/usr/share/elasticsearch/data
     ports:
       - "9200:9200"
       - "9300:9300"
     mem_limit: 4g
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep green || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   ollama:
-    image: ollama/ollama
+    build:
+      context: .
+      dockerfile: Dockerfile.ollama
+    image: lex_fridman_podcast_ollama:latest
     container_name: ollama
     environment:
       - CHAT_MODEL=${CHAT_MODEL}
@@ -24,6 +33,12 @@ services:
       - ollama_data:/root/.ollama
     ports:
       - "11434:11434"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:11434 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   postgres:
     image: postgres:13
@@ -36,11 +51,18 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   streamlit:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.streamlit
+    image: lex_fridman_podcast_streamlit:latest
     container_name: streamlit
     environment:
       - ELASTIC_HOST=${ELASTIC_HOST}
@@ -70,9 +92,18 @@ services:
       - elasticsearch
       - ollama
       - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:8501/_stcore/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   grafana:
-    image: grafana/grafana:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.grafana
+    image: lex_fridman_podcast_grafana:latest
     container_name: grafana
     ports:
       - "3000:3000"
@@ -82,8 +113,15 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
     depends_on:
       - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:3000/api/health | grep '\"database\": \"ok\"' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
 volumes:
   ollama_data:
   postgres_data:
   grafana_data:
+  elasticsearch_data:

@@ -1,0 +1,10 @@
+# Use the official Grafana image as the base
+FROM grafana/grafana:latest
+
+# Install curl
+USER root
+
+RUN apk update && apk --no-cache --force add curl
+
+# Ensure curl is available
+CMD ["curl", "--version"]

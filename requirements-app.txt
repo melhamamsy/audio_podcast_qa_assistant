@@ -1,7 +1,7 @@
-streamlit
-tqdm
-openai
-psycopg
-psycopg-binary
-elasticsearch
-python-dotenv
+elasticsearch==8.15.0
+openai==1.40.6
+psycopg==3.2.1
+psycopg-binary==3.2.1
+python-dotenv==1.0.1
+streamlit==1.37.1
+tqdm==4.66.5

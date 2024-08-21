@@ -1,5 +1,4 @@
 <!-- pgcli postgresql://postgres:example@localhost:5432/lex_fridman_podcast -->
-<!-- Update docker-compose to have es volume as docker volume not local dir -->
 
 ### Needed for Chunking
 ```python -m spacy download en_core_web_sm```
@@ -56,7 +55,10 @@ docker-compose down
 ```
 
 ## Formatting
+```
 pylint $(find . -name "*.py")
 git config core.hooksPath git-hooks
+```
 
-
+## episode-mini.mp3
+```ffmpeg -ss 00:01:30 -i input.mp3 -t 60 -c copy output.mp3```

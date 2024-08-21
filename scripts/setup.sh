@@ -25,8 +25,7 @@ echoo() {
 
 
 # cd to file directory
-cd "$(dirname "$0")"
-
+cd "$(dirname "$0")/.."
 
 # Initialize env variables
 export $(grep -v '^#' .env | xargs)
@@ -237,7 +236,7 @@ fi
 
 # Prefect Tasks
 echoo "Setting up postgres & es..."
-python setup.py \
+python scripts/setup.py \
     --reindex_es "$reindex_es" \
     --reinit_db "$reinit_db" \
     --defacto "$defacto" \
