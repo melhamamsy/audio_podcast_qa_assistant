@@ -46,7 +46,7 @@ def parse_cli_args():
 
     Returns:
         tuple: A tuple containing boolean values for reindex_es, reinit_db,
-               defacto, redeploy_flows, reinint_grafana, and recreate_dashboards.
+               defacto, reinit_grafana, and recreate_dashboards.
     """
     parser = argparse.ArgumentParser(description="Reading control parameters.")
     parser.add_argument(
@@ -57,10 +57,7 @@ def parse_cli_args():
     )
     parser.add_argument("--defacto", type=str, required=False, help="Value of defacto")
     parser.add_argument(
-        "--redeploy_flows", type=str, required=False, help="Value of redeploy_flows"
-    )
-    parser.add_argument(
-        "--reinint_grafana", type=str, required=False, help="Value of reinint_grafana"
+        "--reinit_grafana", type=str, required=False, help="Value of reinit_grafana"
     )
     parser.add_argument(
         "--recreate_dashboards",
@@ -85,16 +82,11 @@ def parse_cli_args():
         "false",
         None,
     ], "'defacto' must be either 'true', 'false', or left blank"
-    assert args.redeploy_flows in [
+    assert args.reinit_grafana in [
         "true",
         "false",
         None,
-    ], "'redeploy_flows' must be either 'true', 'false', or left blank"
-    assert args.reinint_grafana in [
-        "true",
-        "false",
-        None,
-    ], "'reinint_grafana' must be either 'true', 'false', or left blank"
+    ], "'reinit_grafana' must be either 'true', 'false', or left blank"
     assert args.recreate_dashboards in [
         "true",
         "false",
@@ -104,16 +96,14 @@ def parse_cli_args():
     reindex_es = args.reindex_es == "true"
     reinit_db = args.reinit_db == "true"
     defacto = args.defacto != "false"
-    redeploy_flows = args.redeploy_flows == "true"
-    reinint_grafana = args.reinint_grafana == "true"
+    reinit_grafana = args.reinit_grafana == "true"
     recreate_dashboards = args.recreate_dashboards == "true"
 
     return (
         reindex_es,
         reinit_db,
         defacto,
-        redeploy_flows,
-        reinint_grafana,
+        reinit_grafana,
         recreate_dashboards,
     )
 
@@ -269,55 +259,49 @@ if __name__ == "__main__":
         reindex_es,
         reinit_db,
         defacto,
-        redeploy_flows,
         reinit_grafana,
         recreate_dashboards,
     ) = parse_cli_args()
 
     # Creating deployments for the flows
-    if redeploy_flows:
-        print_log("Re-deploying prefect flows ...")
+    deployment_setup_es = Deployment.build_from_flow(
+        flow=setup_es,
+        name="ad-hoc",
+        work_pool_name=WORK_POOL_NAME,
+        parameters={"reindex_es": reindex_es, "defacto": defacto},
+    )
+    deployment_setup_es.apply()
+    print_log("Successfully deployed prefect flow setup_es/ad-hoc")
 
-        deployment_setup_es = Deployment.build_from_flow(
-            flow=setup_es,
-            name="ad-hoc",
-            work_pool_name=WORK_POOL_NAME,
-            parameters={"reindex_es": reindex_es, "defacto": defacto},
-        )
-        deployment_setup_es.apply()
-        print_log("Successfully deployed prefect flow setup_es/ad-hoc")
+    deployment_init_db = Deployment.build_from_flow(
+        flow=init_df_flow,
+        name="ad-hoc",
+        work_pool_name=WORK_POOL_NAME,
+        parameters={"reinit_db": reinit_db},
+    )
+    deployment_init_db.apply()
+    print_log("Successfully deployed prefect flow init_db/ad-hoc")
 
-        deployment_init_db = Deployment.build_from_flow(
-            flow=init_df_flow,
-            name="ad-hoc",
-            work_pool_name=WORK_POOL_NAME,
-            parameters={"reinit_db": reinit_db},
-        )
-        deployment_init_db.apply()
-        print_log("Successfully deployed prefect flow init_db/ad-hoc")
+    deployment_setup_grafana = Deployment.build_from_flow(
+        flow=setup_grafana,
+        name="ad-hoc",
+        work_pool_name=WORK_POOL_NAME,
+        parameters={
+            "reinit_grafana": reinit_grafana,
+            "recreate_dashboards": recreate_dashboards,
+        },
+    )
+    deployment_setup_grafana.apply()
+    print_log("Successfully deployed prefect flow setup_grafana/ad-hoc")
 
-        deployment_setup_grafana = Deployment.build_from_flow(
-            flow=setup_grafana,
-            name="ad-hoc",
-            work_pool_name=WORK_POOL_NAME,
-            parameters={
-                "reinit_grafana": reinit_grafana,
-                "recreate_dashboards": recreate_dashboards,
-            },
-        )
-        deployment_setup_grafana.apply()
-        print_log("Successfully deployed prefect flow setup_grafana/ad-hoc")
-
-        deployment_process_new_episodes = Deployment.build_from_flow(
-            flow=process_new_episodes,
-            name="midnight-every-sunday",
-            work_pool_name=WORK_POOL_NAME,
-            parameters={"bucket_dir": os.path.join(PROJECT_DIR, "bucket")},
-            schedules=[CronSchedule(cron="0 0 * * 0")],
-        )
-        deployment_process_new_episodes.apply()
-        print_log(
-            "Successfully deployed prefect flow process_new_episodes/midnight-every-sunday"
-        )
-    else:
-        print("'redeploy_flows' is set to 'False', no need to redeploy ...")
+    deployment_process_new_episodes = Deployment.build_from_flow(
+        flow=process_new_episodes,
+        name="midnight-every-sunday",
+        work_pool_name=WORK_POOL_NAME,
+        parameters={"bucket_dir": os.path.join(PROJECT_DIR, "bucket")},
+        schedules=[CronSchedule(cron="0 0 * * 0")],
+    )
+    deployment_process_new_episodes.apply()
+    print_log(
+        "Successfully deployed prefect flow process_new_episodes/midnight-every-sunday"
+    )

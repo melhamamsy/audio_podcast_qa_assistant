@@ -1,7 +1,10 @@
 # Makefile
+include .env
+
+# Setting env variables
+export $(shell sed 's/=.*//' .env)
 
 # Define variables
-ENV_NAME = dummy-dtc-env
 PYTHON_VERSION = 3.11.5
 DEV_REQUIREMENTS = requirements-dev.txt
 PY_FILES = $(shell find . -name "*.py")
@@ -30,6 +33,10 @@ remove_local_env:
 		echo "Conda environment '$(ENV_NAME)' not found."; \
 	fi
 
+# Docker-compose
+compose:
+	docker-compose up -d
+
 # Format py files
 format_py:
 	isort $(PY_FILES)
@@ -47,4 +54,59 @@ unit_tests:
 integration_tests:
 	./integration_tests/connectivity_check.sh
 
-.PHONY: create_local_env remove_local_env format_py lint_py unit_tests integration_tests
+# Download ollama models specified as CHAT_MODEL & EMBED_MODEL
+setup_ollama:
+	./scripts/setup_ollama.sh
+
+# Start prefect server and worker
+prefect_start_server:
+	@if ! curl -s -o /dev/null localhost:4200; then \
+		echo "Prefect server is not running. Starting the server..."; \
+		conda run -n $(ENV_NAME) prefect server start & \
+		for i in $$(seq 1 10); do \
+			if curl -s -o /dev/null localhost:4200; then \
+				echo "\033[0;32mPrefect server started successfully.\033[0m"; \
+				exit 0; \
+			else \
+				echo "Waiting for Prefect server to start... ($$i/10)"; \
+				sleep 5; \
+			fi; \
+		done; \
+		echo "\033[0;31mFailed to start the Prefect server after multiple attempts.\033[0m"; \
+	else \
+		echo "\033[0;32mPrefect server is already running.\033[0m"; \
+	fi
+
+# Stop prefect server
+prefect_stop_server:
+	@if curl -s -o /dev/null localhost:4200; then \
+		echo "Prefect server is running. Stopping the server..."; \
+		kill $$(ps aux | grep "prefect server" | grep -v grep | awk '{print $$2}') 2>/dev/null || true; \
+		for i in $$(seq 1 10); do \
+			if ! curl -s -o /dev/null localhost:4200; then \
+				echo "\033[0;32mPrefect server terminated successfully.\033[0m"; \
+				exit 0; \
+			else \
+				echo "Waiting for Prefect server to terminate... ($$i/10)"; \
+				sleep 2; \
+			fi; \
+		done; \
+		echo "\033[0;31mFailed to terminate the Prefect server after multiple attempts.\033[0m"; \
+	else \
+		echo "\033[0;32mPrefect server is not running.\033[0m"; \
+	fi
+
+# Start a new prefect worker
+prefect_start_worker:
+	@conda run -n $(ENV_NAME) prefect worker start --pool ${WORK_POOL_NAME} &
+
+# Kill all prefect workers
+prefect_kill_workers:
+	@./scripts/kill_prefect_workers.sh 
+
+# Re-indexing es with defacto mode
+reindex_es_defacto:
+	conda run -n $(ENV_NAME) \
+		prefect deployment run setup_es/ad-hoc \
+		-p reindex_es=true \
+		-p defacto=true

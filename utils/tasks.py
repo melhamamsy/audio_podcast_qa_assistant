@@ -92,9 +92,11 @@ def load_podcast_data(
         dataset = []
         for dir_ in new_episodes_dirs:
             audio, sampling_rate = read_mp3(
-                os.path.join(PROJECT_DIR, f"bucket/{dir_}/episode.mp3")
+                os.path.join(
+                    PROJECT_DIR, f"bucket/{dir_}/{os.getenv('NEW_AUDIOS_NAME')}.mp3"
+                )
             )
-            audio = standardize_array(audio)[:4_800_000]  # 10 seconds for testing
+            audio = standardize_array(audio)
 
             episode = read_json_file(
                 os.path.join(PROJECT_DIR, f"bucket/{dir_}/metadata.json")
