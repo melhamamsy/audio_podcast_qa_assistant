@@ -55,16 +55,17 @@ def handle_user_input():
         tuple: Contains title query (str), model choice (str), search type (str),
                and user question (str).
     """
-    title_query = st.text_input("Enter episode title, needn't be exact (Optional):")
-    print_log(f"User title query: {title_query}")
+    user_input = st.text_input("Enter your question:")
+    print_log(f"User title input question: {user_input}")
     model_choice = st.selectbox(
         "Select a model:",
         ["ollama/phi3", "openai/gpt-3.5-turbo", "openai/gpt-4o", "openai/gpt-4o-mini"],
     )
     print_log(f"User selected model: {model_choice}")
-    search_type = st.radio("Select search type:", ["Text", "Vector"])
+    search_type = st.radio("Select search type:", ["Text", "Vector", "Hybrid"])
     print_log(f"User selected search type: {search_type}")
-    user_input = st.text_input("Enter your question:")
+    title_query = st.text_input("Enter episode title, needn't be exact (Optional):")
+    print_log(f"User title query: {title_query}")
     return title_query, model_choice, search_type, user_input
 
 

@@ -189,83 +189,140 @@
                 "type": "piechart"
             },
             {
-                "datasource": {
-                    "type": "grafana-postgresql-datasource",
-                    "uid": "edvik6ggsswlce"
-                },
-                "fieldConfig": {
-                    "defaults": {
-                        "mappings": [],
-                        "thresholds": {
-                            "mode": "percentage",
-                            "steps": [
-                                {
-                                    "color": "green",
-                                    "value": null
-                                },
-                                {
-                                    "color": "orange",
-                                    "value": 70
-                                },
-                                {
-                                    "color": "red",
-                                    "value": 85
-                                }
-                            ]
-                        }
-                    },
-                    "overrides": []
-                },
+                "type": "piechart",
+                "title": "Relevance",
                 "gridPos": {
                     "h": 8,
                     "w": 12,
                     "x": 12,
                     "y": 8
                 },
-                "id": 4,
-                "options": {
-                    "orientation": "auto",
-                    "reduceOptions": {
-                        "calcs": [],
-                        "fields": "",
-                        "values": true
-                    },
-                    "showThresholdLabels": false,
-                    "showThresholdMarkers": true
+                "datasource": {
+                    "uid": "edvik6ggsswlce",
+                    "type": "grafana-postgresql-datasource"
                 },
-                "pluginVersion": "9.3.1",
+                "id": 15,
                 "targets": [
                     {
                         "datasource": {
-                            "type": "grafana-postgresql-datasource",
-                            "uid": "edvik6ggsswlce"
+                            "uid": "edvik6ggsswlce",
+                            "type": "grafana-postgresql-datasource"
                         },
-                        "editorMode": "code",
-                        "format": "table",
-                        "rawQuery": true,
-                        "rawSql": "SELECT\r\n  relevance,\r\n  COUNT(*) as count\r\nFROM conversations\r\nWHERE timestamp BETWEEN $__timeFrom() AND $__timeTo()\r\nGROUP BY relevance\r\nORDER BY relevance DESC",
                         "refId": "A",
+                        "hide": false,
+                        "format": "table",
+                        "rawSql": "SELECT relevance, COUNT(*) as values FROM conversations WHERE timestamp BETWEEN $__timeFrom() AND $__timeTo() GROUP BY relevance ORDER BY relevance DESC",
+                        "editorMode": "code",
                         "sql": {
                             "columns": [
                                 {
-                                    "parameters": [],
-                                    "type": "function"
+                                    "type": "function",
+                                    "parameters": []
                                 }
                             ],
                             "groupBy": [
                                 {
+                                    "type": "groupBy",
                                     "property": {
                                         "type": "string"
-                                    },
-                                    "type": "groupBy"
+                                    }
                                 }
                             ],
                             "limit": 50
-                        }
+                        },
+                        "rawQuery": true
                     }
                 ],
-                "title": "Relevancy",
-                "type": "gauge"
+                "options": {
+                    "reduceOptions": {
+                        "values": true,
+                        "calcs": [
+                            "lastNotNull"
+                        ],
+                        "fields": "/^values$/",
+                        "limit": 3
+                    },
+                    "pieType": "donut",
+                    "tooltip": {
+                        "mode": "multi",
+                        "sort": "none"
+                    },
+                    "legend": {
+                        "showLegend": true,
+                        "displayMode": "list",
+                        "placement": "right",
+                        "values": [
+                            "percent"
+                        ]
+                    },
+                    "displayLabels": [
+                        "name"
+                    ]
+                },
+                "fieldConfig": {
+                    "defaults": {
+                        "custom": {
+                            "hideFrom": {
+                                "tooltip": false,
+                                "viz": false,
+                                "legend": false
+                            }
+                        },
+                        "color": {
+                            "mode": "fixed"
+                        },
+                        "mappings": [],
+                        "min": -1
+                    },
+                    "overrides": [
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "RELEVANT"
+                            },
+                            "properties": [
+                                {
+                                    "id": "color",
+                                    "value": {
+                                        "fixedColor": "green",
+                                        "mode": "fixed"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "PARTLY_RELEVANT"
+                            },
+                            "properties": [
+                                {
+                                    "id": "color",
+                                    "value": {
+                                        "fixedColor": "yellow",
+                                        "mode": "fixed"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "matcher": {
+                                "id": "byName",
+                                "options": "NON_RELEVANT"
+                            },
+                            "properties": [
+                                {
+                                    "id": "color",
+                                    "value": {
+                                        "fixedColor": "red",
+                                        "mode": "fixed"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "pluginVersion": "11.1.3"
             },
             {
                 "datasource": {

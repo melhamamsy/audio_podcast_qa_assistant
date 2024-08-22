@@ -145,7 +145,7 @@ reinit_db:
 resetup_grafana:
 	@PYTHONPATH=./ conda run -n $(ENV_NAME) \
 		prefect deployment run setup_grafana/ad-hoc \
-		-p reinit_grafana=true \
+		$(if $(reinit_grafana),-p reinit_grafana=$(reinit_grafana)) \
 		-p recreate_dashboards=true
 
 # Get number of docs in es index for a passed id (not _id)

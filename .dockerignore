@@ -1,8 +1,10 @@
-hf_cache/
-data/
+.pytest_cache/
+.vscode/
 bucket/
-notebooks/
+data/
 git-hook/
+hf_cache/
+notebooks/
 README.md
 requirements.txt
 requirements-dev.txt

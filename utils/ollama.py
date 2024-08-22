@@ -29,7 +29,7 @@ def create_ollama_client(ollama_host, ollama_port):
     )
 
 
-def get_embedding(client, text, model_name="locusai/multi-qa-minilm-l6-cos-v1"):
+def get_embedding(client, text, model_name="nomic-embed-text"):
     """
     Get the embedding for a given text using a specified model.
 
@@ -37,7 +37,7 @@ def get_embedding(client, text, model_name="locusai/multi-qa-minilm-l6-cos-v1"):
         client: The client instance to use for generating embeddings.
         text (str): The text to be embedded.
         model_name (str, optional): The name of the model to use for embedding.
-                                    Default is 'locusai/multi-qa-minilm-l6-cos-v1'.
+                                    Default is 'nomic-embed-text'.
 
     Returns:
         list: The embedding of the text as a list of floats.
@@ -46,7 +46,7 @@ def get_embedding(client, text, model_name="locusai/multi-qa-minilm-l6-cos-v1"):
     return client.embeddings.create(input=[text], model=model_name).data[0].embedding
 
 
-def embed_document(client, document, model_name="locusai/multi-qa-minilm-l6-cos-v1"):
+def embed_document(client, document, model_name="nomic-embed-text"):
     """
     Embed a document using a specified model.
 
@@ -54,7 +54,7 @@ def embed_document(client, document, model_name="locusai/multi-qa-minilm-l6-cos-
         client: The client instance to use for generating embeddings.
         document (dict): A dictionary containing 'title' and 'text' fields.
         model_name (str, optional): The name of the model to use for embedding.
-                                    Default is 'locusai/multi-qa-minilm-l6-cos-v1'.
+                                    Default is 'nomic-embed-text'.
 
     Returns:
         dict: The original document with an added embedding vector for the

@@ -90,19 +90,21 @@ def build_prompt(prompt_template_path=None, **document_dict):
     return prompt
 
 
-def elastic_search_text(query, title_query):
+def elastic_search_text(query, title_query=None, boost=None):
     """
     Perform a text-based search using Elasticsearch.
 
     Args:
         query (str): The main query string to search for.
-        title_query (str): An optional title filter to narrow the search.
+        title_query (str, Optional): An optional title filter to narrow the search.
+        boost (float, Optional): An optional boost to the qeury
 
     Returns:
         list: A list of search results matching the query.
     """
     search_query = {
         "_source": ["text", "title", "tags", "chunk_id", "id"],
+        "size": 10,
         "query": {
             "bool": {
                 "must": {
@@ -121,22 +123,28 @@ def elastic_search_text(query, title_query):
             "match": {"title": {"query": title_query, "fuzziness": "AUTO"}}
         }
 
+    if boost:
+        search_query["query"]["bool"]["must"]["multi_match"]["boost"] = boost
+
     responses = ES_CLIENT.search(
         index=INDEX_NAME,
         body=search_query,
-        size=5,
     )
 
-    return [hit["_source"] for hit in responses["hits"]["hits"]]
+    return [
+        {"_id": hit["_id"], "_score": hit["_score"], **hit["_source"]}
+        for hit in responses["hits"]["hits"]
+    ]
 
 
-def elastic_search_knn(query_vector, title_query):
+def elastic_search_knn(query_vector, title_query=None, boost=None):
     """
     Perform a K-Nearest Neighbors (KNN) search using Elasticsearch.
 
     Args:
         query_vector (list): The query vector for similarity search.
-        title_query (str): An optional title filter to narrow the search.
+        title_query (str, Optional): An optional title filter to narrow the search.
+        boost (float, Optional): An optional boost to the qeury
 
     Returns:
         list: A list of search results matching the query.
@@ -153,18 +161,146 @@ def elastic_search_knn(query_vector, title_query):
             "match": {"title": {"query": title_query, "fuzziness": "AUTO"}}
         }
 
+    if boost:
+        knn["boost"] = boost
+
     search_query = {
         "knn": knn,
+        "size": 10,
         "_source": ["text", "title", "tags", "chunk_id", "id"],
     }
 
     responses = ES_CLIENT.search(
         index=INDEX_NAME,
         body=search_query,
-        size=5,
     )
 
-    return [hit["_source"] for hit in responses["hits"]["hits"]]
+    return [
+        {"_id": hit["_id"], "_score": hit["_score"], **hit["_source"]}
+        for hit in responses["hits"]["hits"]
+    ]
+
+
+def compute_rrf(rank, k=60):
+    """
+    Compute the Reciprocal Rank Fusion (RRF) score for a given document rank.
+
+    The RRF score is calculated as 1 / (k + rank), where 'k' is a tunable
+    parameter that defines how much emphasis is placed on lower-ranked results.
+
+    Parameters:
+    ----------
+    rank : int
+        The rank of the document (1-based index).
+    k : int, optional
+        The constant used to adjust the impact of the rank in the RRF calculation.
+        Default is 60.
+
+    Returns:
+    -------
+    float
+        The reciprocal relevance score for the document.
+    """
+    return 1 / (k + rank)
+
+
+def compute_documents_rrf(k, *results_args):
+    """
+    Calculate the RRF scores for documents from multiple result sets.
+
+    This function computes the cumulative RRF score for each document
+    across multiple ranked result sets.
+
+    Parameters:
+    ----------
+    k : int
+        The constant used in the RRF calculation.
+    *results_args : list of list of dict
+        Each argument is a list of results, where each result is a dictionary
+        representing a document with an '_id' key. The rank is derived from the
+        index within each result list.
+
+    Returns:
+    -------
+    list of tuple
+        A list of tuples where each tuple contains a document ID and its
+        cumulative RRF score, sorted in descending order by score.
+    """
+    rrf_scores = {}
+    for results in results_args:
+        for rank, hit in enumerate(results):
+            doc_id = hit["_id"]
+            rrf_scores[doc_id] = rrf_scores.get(doc_id, 0) + compute_rrf(rank + 1, k)
+
+    return sorted(rrf_scores.items(), key=lambda x: x[1], reverse=True)
+
+
+def elastic_search_hybrid_rrf(
+    query, query_vector, k=60, title_query=None, vector_boost=None
+):
+    """
+    Perform a hybrid search using Elasticsearch by combining text-based and
+    vector-based search results, then re-ranking them using RRF.
+
+    Parameters:
+    ----------
+    query : str
+        The text query used for the traditional keyword search.
+    query_vector : list or ndarray
+        The vector representing the query, used for the k-NN (vector) search.
+    k : int, optional
+        The constant used in the RRF calculation. Default is 60.
+    title_query : str, optional
+        An additional query for targeting specific fields like titles.
+    vector_boost : float, optional
+        The weight assigned to the vector-based search results relative to
+        the text-based results. Must be a float between 0 and 1. If None,
+        both text and vector search are given equal weight (0.5).
+
+    Returns:
+    -------
+    list of dict
+        A list of the top-K documents, sorted by their RRF score. Each document
+        contains its original content plus an additional key 'rrf_score'
+        indicating its RRF score.
+
+    Raises:
+    -------
+    AssertionError
+        If vector_boost is provided but is not a float between 0 and 1.
+    """
+    assert vector_boost is None or (
+        isinstance(vector_boost, (float, int)) and 0 <= vector_boost <= 1
+    ), (
+        f"Incorrect value '{vector_boost}' for vector_boost, "
+        "must be a float or int between [0, 1] or None"
+    )
+
+    if vector_boost:
+        text_boost = 1 - vector_boost
+    else:
+        vector_boost = text_boost = 0.5
+
+    knn_results = elastic_search_knn(
+        query_vector, title_query=title_query, boost=vector_boost
+    )
+    keyword_results = elastic_search_text(
+        query, title_query=title_query, boost=text_boost
+    )
+
+    results = knn_results + keyword_results
+    result_ids = [doc["_id"] for doc in results]
+
+    rrf_scores = compute_documents_rrf(k, knn_results, keyword_results)
+
+    # Get top-K documents by the score
+    final_results = []
+    for doc_id, rrf_score in rrf_scores[:5]:
+        doc = results[result_ids.index(doc_id)]
+        doc["rrf_score"] = rrf_score
+        final_results.append(doc)
+
+    return final_results
 
 
 def llm(prompt, model_choice="ollama/phi3"):
@@ -256,19 +392,59 @@ def calculate_openai_cost(model_choice, tokens):
 
 
 def get_search_results(query, title_query, search_type):
-    """Perform search based on the specified type."""
+    """
+    Perform a search based on the specified search type.
+
+    This function supports different search methods, including vector-based,
+    text-based, and hybrid approaches. It returns results based on the selected
+    search type.
+
+    Parameters:
+    ----------
+    query : str
+        The main search query to be processed.
+    title_query : str
+        An optional query to target specific fields like titles.
+    search_type : str
+        The type of search to perform. It must be one of the following:
+        - "Vector": Performs a k-NN (vector-based) search using the query embedding.
+        - "Text": Performs a traditional keyword search.
+        - "Hybrid": Combines the results of both vector-based and text-based searches,
+          re-ranking the documents using Reciprocal Rank Fusion (RRF).
+
+    Returns:
+    -------
+    list of dict
+        A list of search results. Each result is a dictionary containing the relevant
+        information about a document.
+
+    Raises:
+    -------
+    QueryTypeWrongValueError
+        If `search_type` is not one of "Text", "Vector", or "Hybrid".
+    """
     if search_type == "Vector":
         query_vector = get_embedding(
             client=OLLAMA_CLIENT,
             text=query,
-            model_name=os.getenv("EMBED_MODEL", "locusai/multi-qa-minilm-l6-cos-v1"),
+            model_name=os.getenv("EMBED_MODEL", "nomic-embed-text"),
         )
         return elastic_search_knn(query_vector, title_query)
 
     if search_type == "Text":
         return elastic_search_text(query, title_query)
 
-    raise QueryTypeWrongValueError("`search_type` must be either 'Text' or 'Vector'")
+    if search_type == "Hybrid":
+        query_vector = get_embedding(
+            client=OLLAMA_CLIENT,
+            text=query,
+            model_name=os.getenv("EMBED_MODEL", "nomic-embed-text"),
+        )
+        return elastic_search_hybrid_rrf(query, query_vector, title_query=title_query)
+
+    raise QueryTypeWrongValueError(
+        "`search_type` must be either 'Text', 'Vector', or 'Hybrid'"
+    )
 
 
 def process_search_results(search_results):
