@@ -1,7 +1,7 @@
 {
     "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "edvik6ggsswlce"
+        "uid": ""
     },
     "fieldConfig": {
         "defaults": {
@@ -77,7 +77,7 @@
         {
             "datasource": {
                 "type": "grafana-postgresql-datasource",
-                "uid": "edvik6ggsswlce"
+                "uid": ""
             },
             "editorMode": "code",
             "format": "table",

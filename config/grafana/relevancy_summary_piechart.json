@@ -8,14 +8,14 @@
         "y": 8
     },
     "datasource": {
-        "uid": "edvik6ggsswlce",
+        "uid": "",
         "type": "grafana-postgresql-datasource"
     },
     "id": 15,
     "targets": [
         {
             "datasource": {
-                "uid": "edvik6ggsswlce",
+                "uid": "",
                 "type": "grafana-postgresql-datasource"
             },
             "refId": "A",

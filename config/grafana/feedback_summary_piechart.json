@@ -1,23 +1,55 @@
 {
     "datasource": {
         "type": "grafana-postgresql-datasource",
-        "uid": "edvik6ggsswlce"
+        "uid": ""
     },
     "fieldConfig": {
         "defaults": {
-            "color": {
-                "mode": "palette-classic"
-            },
             "custom": {
                 "hideFrom": {
-                    "legend": false,
                     "tooltip": false,
-                    "viz": false
+                    "viz": false,
+                    "legend": false
                 }
             },
-            "mappings": []
+            "color": {
+                "mode": "fixed"
+            },
+            "mappings": [],
+            "min": -1
         },
-        "overrides": []
+        "overrides": [
+            {
+                "matcher": {
+                    "id": "byName",
+                    "options": "thumbs_up"
+                },
+                "properties": [
+                    {
+                        "id": "color",
+                        "value": {
+                            "fixedColor": "green",
+                            "mode": "fixed"
+                        }
+                    }
+                ]
+            },
+            {
+                "matcher": {
+                    "id": "byName",
+                    "options": "thumbs_down"
+                },
+                "properties": [
+                    {
+                        "id": "color",
+                        "value": {
+                            "fixedColor": "red",
+                            "mode": "fixed"
+                        }
+                    }
+                ]
+            }
+        ]
     },
     "gridPos": {
         "h": 8,
@@ -53,7 +85,7 @@
         {
             "datasource": {
                 "type": "grafana-postgresql-datasource",
-                "uid": "edvik6ggsswlce"
+                "uid": ""
             },
             "editorMode": "code",
             "format": "table",
