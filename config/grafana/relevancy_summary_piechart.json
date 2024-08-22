@@ -1,0 +1,136 @@
+{
+    "type": "piechart",
+    "title": "Relevance",
+    "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+    },
+    "datasource": {
+        "uid": "edvik6ggsswlce",
+        "type": "grafana-postgresql-datasource"
+    },
+    "id": 15,
+    "targets": [
+        {
+            "datasource": {
+                "uid": "edvik6ggsswlce",
+                "type": "grafana-postgresql-datasource"
+            },
+            "refId": "A",
+            "hide": false,
+            "format": "table",
+            "rawSql": "SELECT relevance, COUNT(*) as values FROM conversations WHERE timestamp BETWEEN $__timeFrom() AND $__timeTo() GROUP BY relevance ORDER BY relevance DESC",
+            "editorMode": "code",
+            "sql": {
+                "columns": [
+                    {
+                        "type": "function",
+                        "parameters": []
+                    }
+                ],
+                "groupBy": [
+                    {
+                        "type": "groupBy",
+                        "property": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "limit": 50
+            },
+            "rawQuery": true
+        }
+    ],
+    "options": {
+        "reduceOptions": {
+            "values": true,
+            "calcs": [
+                "lastNotNull"
+            ],
+            "fields": "/^values$/",
+            "limit": 3
+        },
+        "pieType": "donut",
+        "tooltip": {
+            "mode": "multi",
+            "sort": "none"
+        },
+        "legend": {
+            "showLegend": true,
+            "displayMode": "list",
+            "placement": "right",
+            "values": [
+                "percent"
+            ]
+        },
+        "displayLabels": [
+            "name"
+        ]
+    },
+    "fieldConfig": {
+        "defaults": {
+            "custom": {
+                "hideFrom": {
+                    "tooltip": false,
+                    "viz": false,
+                    "legend": false
+                }
+            },
+            "color": {
+                "mode": "fixed"
+            },
+            "mappings": [],
+            "min": -1
+        },
+        "overrides": [
+            {
+                "matcher": {
+                    "id": "byName",
+                    "options": "RELEVANT"
+                },
+                "properties": [
+                    {
+                        "id": "color",
+                        "value": {
+                            "fixedColor": "green",
+                            "mode": "fixed"
+                        }
+                    }
+                ]
+            },
+            {
+                "matcher": {
+                    "id": "byName",
+                    "options": "PARTLY_RELEVANT"
+                },
+                "properties": [
+                    {
+                        "id": "color",
+                        "value": {
+                            "fixedColor": "yellow",
+                            "mode": "fixed"
+                        }
+                    }
+                ]
+            },
+            {
+                "matcher": {
+                    "id": "byName",
+                    "options": "NON_RELEVANT"
+                },
+                "properties": [
+                    {
+                        "id": "color",
+                        "value": {
+                            "fixedColor": "red",
+                            "mode": "fixed"
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "pluginVersion": "11.1.3"
+}

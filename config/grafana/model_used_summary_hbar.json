@@ -1,0 +1,108 @@
+{
+    "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "edvik6ggsswlce"
+    },
+    "fieldConfig": {
+        "defaults": {
+            "color": {
+                "mode": "palette-classic"
+            },
+            "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "fillOpacity": 80,
+                "gradientMode": "none",
+                "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                },
+                "lineWidth": 1,
+                "scaleDistribution": {
+                    "type": "linear"
+                },
+                "thresholdsStyle": {
+                    "mode": "off"
+                }
+            },
+            "mappings": [],
+            "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                    {
+                        "color": "green",
+                        "value": null
+                    },
+                    {
+                        "color": "red",
+                        "value": 80
+                    }
+                ]
+            },
+            "unit": "short"
+        },
+        "overrides": []
+    },
+    "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+    },
+    "id": 6,
+    "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "groupWidth": 0.7,
+        "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "right",
+            "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "never",
+        "stacking": "none",
+        "tooltip": {
+            "mode": "single",
+            "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+    },
+    "targets": [
+        {
+            "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "edvik6ggsswlce"
+            },
+            "editorMode": "code",
+            "format": "table",
+            "rawQuery": true,
+            "rawSql": "SELECT\r\n  model_used,\r\n  COUNT(*) as count\r\nFROM conversations\r\nWHERE timestamp BETWEEN $__timeFrom() AND $__timeTo()\r\nGROUP BY model_used\r\n",
+            "refId": "A",
+            "sql": {
+                "columns": [
+                    {
+                        "parameters": [],
+                        "type": "function"
+                    }
+                ],
+                "groupBy": [
+                    {
+                        "property": {
+                            "type": "string"
+                        },
+                        "type": "groupBy"
+                    }
+                ],
+                "limit": 50
+            }
+        }
+    ],
+    "title": "Model used",
+    "type": "barchart"
+}

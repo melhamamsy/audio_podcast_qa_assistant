@@ -1,0 +1,84 @@
+{
+    "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "edvik6ggsswlce"
+    },
+    "fieldConfig": {
+        "defaults": {
+            "color": {
+                "mode": "palette-classic"
+            },
+            "custom": {
+                "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "viz": false
+                }
+            },
+            "mappings": []
+        },
+        "overrides": []
+    },
+    "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+    },
+    "id": 14,
+    "options": {
+        "displayLabels": [
+            "percent"
+        ],
+        "legend": {
+            "displayMode": "list",
+            "placement": "right",
+            "showLegend": true,
+            "values": []
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+            "calcs": [
+                "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+        },
+        "tooltip": {
+            "mode": "single",
+            "sort": "none"
+        }
+    },
+    "targets": [
+        {
+            "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "edvik6ggsswlce"
+            },
+            "editorMode": "code",
+            "format": "table",
+            "rawQuery": true,
+            "rawSql": "SELECT\r\n  SUM(CASE WHEN feedback > 0 THEN 1 ELSE 0 END) as thumbs_up,\r\n  SUM(CASE WHEN feedback < 0 THEN 1 ELSE 0 END) as thumbs_down\r\nFROM feedback\r\nWHERE timestamp BETWEEN $__timeFrom() AND $__timeTo()\r\n",
+            "refId": "A",
+            "sql": {
+                "columns": [
+                    {
+                        "parameters": [],
+                        "type": "function"
+                    }
+                ],
+                "groupBy": [
+                    {
+                        "property": {
+                            "type": "string"
+                        },
+                        "type": "groupBy"
+                    }
+                ],
+                "limit": 50
+            }
+        }
+    ],
+    "title": "+1/-1",
+    "type": "piechart"
+}

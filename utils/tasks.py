@@ -504,7 +504,7 @@ def reinit_grafana_datasource(datasource_name, reinit_grafana=False):
 
 
 def recreate_grafana_dashboard(
-    dashboard_name, datasource_name, json_file_path=None, recreate_dashboards=False
+    dashboard_name, datasource_name, json_files_path=None, recreate_dashboards=False
 ):
     """
     Recreate a Grafana dashboard if needed.
@@ -512,7 +512,7 @@ def recreate_grafana_dashboard(
     Args:
         dashboard_name (str): The name of the Grafana dashboard.
         datasource_name (str): The name of the data source associated with the dashboard.
-        json_file_path (str, optional): The path to the JSON file
+        json_files_path (str, optional): The path to the JSON files of visualization
             containing the dashboard configuration. Defaults to None.
         recreate_dashboards (bool, optional): Whether to recreate the dashboard if it exists.
                                               Defaults to False.
@@ -520,22 +520,59 @@ def recreate_grafana_dashboard(
     datasource_uid = get_grafana_data_source(datasource_name)["uid"]
 
     # Reading dashboard
-    if not json_file_path:
-        json_file_path = os.path.join(
+    if not json_files_path:
+        json_files_path = os.path.join(
             os.getenv("PROJECT_SETUP_DIR"),
-            "config/grafana/lex_fridman_bot_dashboard.json",
+            "config/grafana/",
         )
 
-    with open(json_file_path, "r", encoding="utf-8") as json_file:
-        dashboard = json.load(json_file)
-        for panel in dashboard["dashboard"]["panels"]:
-            panel["datasource"]["uid"] = datasource_uid
-            for target in panel["targets"]:
-                target["datasource"]["uid"] = datasource_uid
-        dashboard["dashboard"]["title"] = dashboard_name
+    dashboard = {
+        "dashboard": {
+            "annotations": {
+                "list": [
+                    {
+                        "builtIn": 1,
+                        "datasource": {"type": "grafana", "uid": "-- Grafana --"},
+                        "enable": True,
+                        "hide": True,
+                        "iconColor": "rgba(0, 211, 255, 1)",
+                        "name": "Annotations & Alerts",
+                        "type": "dashboard",
+                    }
+                ]
+            },
+            "editable": True,
+            "fiscalYearStartMonth": 0,
+            "graphTooltip": 0,
+            "links": [],
+            "panels": [],
+            "schemaVersion": 39,
+            "tags": [],
+            "templating": {"list": []},
+            "time": {"from": "now-2d", "to": "now"},
+            "timepicker": {},
+            "timezone": "browser",
+            "title": "",
+            "version": 0,
+            "weekStart": "",
+        },
+        "overwrite": True,
+    }
 
-    with open(json_file_path, "w", encoding="utf-8") as json_file:
-        json.dump(dashboard, json_file, indent=4)
+    # Read all visualizations and append to dashboard
+    for json_file_path in get_json_files_in_dir(
+        dir_path=json_files_path, return_full_path=True
+    ):
+        with open(json_file_path, "r", encoding="utf-8") as json_file:
+            panel = json.load(json_file)
+            dashboard["dashboard"]["panels"].append(panel)
+
+    # Modify dashboard uid fields and title
+    for panel in dashboard["dashboard"]["panels"]:
+        panel["datasource"]["uid"] = datasource_uid
+        for target in panel["targets"]:
+            target["datasource"]["uid"] = datasource_uid
+    dashboard["dashboard"]["title"] = dashboard_name
 
     ## Delete dashboard if exists
     dashboard_uid = get_dashboard_uid_by_name(dashboard_name)

@@ -1,0 +1,83 @@
+{
+    "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "edvik6ggsswlce"
+    },
+    "fieldConfig": {
+        "defaults": {
+            "color": {
+                "mode": "thresholds"
+            },
+            "custom": {
+                "align": "auto",
+                "displayMode": "auto",
+                "inspect": false
+            },
+            "mappings": [],
+            "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                    {
+                        "color": "green",
+                        "value": null
+                    },
+                    {
+                        "color": "red",
+                        "value": 80
+                    }
+                ]
+            }
+        },
+        "overrides": []
+    },
+    "gridPos": {
+        "h": 8,
+        "w": 17,
+        "x": 3,
+        "y": 0
+    },
+    "id": 12,
+    "options": {
+        "footer": {
+            "fields": "",
+            "reducer": [
+                "sum"
+            ],
+            "show": false
+        },
+        "showHeader": true
+    },
+    "pluginVersion": "9.3.1",
+    "targets": [
+        {
+            "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "edvik6ggsswlce"
+            },
+            "editorMode": "code",
+            "format": "table",
+            "rawQuery": true,
+            "rawSql": "SELECT\r\n  timestamp AS time,\r\n  question,\r\n  answer,\r\n  relevance\r\nFROM conversations\r\nWHERE timestamp BETWEEN $__timeFrom() AND $__timeTo()\r\nORDER BY timestamp DESC\r\nLIMIT 5\r\n",
+            "refId": "A",
+            "sql": {
+                "columns": [
+                    {
+                        "parameters": [],
+                        "type": "function"
+                    }
+                ],
+                "groupBy": [
+                    {
+                        "property": {
+                            "type": "string"
+                        },
+                        "type": "groupBy"
+                    }
+                ],
+                "limit": 50
+            }
+        }
+    ],
+    "title": "Last 5 conversations",
+    "type": "table"
+}
