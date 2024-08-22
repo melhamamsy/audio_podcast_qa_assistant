@@ -11,10 +11,15 @@ import os
 from prefect import flow, task
 from prefect.client.schemas.schedules import CronSchedule
 from prefect.deployments import Deployment
+from prefect.states import StateType
 from prefect.utilities.annotations import quote
 
 from utils.postgres import init_db
-from utils.prefect import create_deployment_run, get_deployment_id_by_name
+from utils.prefect import (
+    create_deployment_run,
+    get_deployment_id_by_name,
+    monitor_run_status,
+)
 from utils.tasks import (
     check_for_new_data,
     chunk_episodes,
@@ -215,15 +220,20 @@ def process_new_episodes(bucket_dir):
             )
         )
 
-        _ = asyncio.run(
+        run = asyncio.run(
             create_deployment_run(
                 deployment_id=deployment_id,
                 parameters=params,
             )
         )
 
-        print(_)  # Just to halt the running of next task
-        task(update_bucket_state, log_prints=True)(bucket_dir, new_dirs)
+        if asyncio.run(monitor_run_status(run.id)) == StateType.COMPLETED:
+            task(update_bucket_state, log_prints=True)(bucket_dir, new_dirs)
+        else:
+            print(
+                f"Run with run_id '{run.id}' failed or cancelled,",
+                "skipping 'update_bucket_state' task.",
+            )
     else:
         print("Found no new episodes, nothing to do...")
 

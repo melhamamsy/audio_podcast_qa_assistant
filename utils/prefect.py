@@ -3,11 +3,15 @@ This module provides utility functions for interacting with Prefect deployments.
 The utilities include functions to:
     1. Retrieve a deployment ID by its name and associated flow name.
     2. Create and trigger a deployment run with specified parameters.
+    3. Monitor task status until done
 
 These functions simplify managing and automating Prefect workflows programmatically.
 """
 
+import time
+
 from prefect.client import get_client
+from prefect.states import StateType
 
 
 async def get_deployment_id_by_name(deployment_name: str, flow_name: str):
@@ -50,3 +54,35 @@ async def create_deployment_run(deployment_id: str, parameters: dict):
         deployment_id=deployment_id,
         parameters=parameters,
     )
+
+
+async def monitor_run_status(run_id: str):
+    """
+    Monitor the status of a Prefect run until it is terminated.
+
+    Parameters:
+        run_id (str): The ID of the Prefect run to monitor.
+
+    Returns:
+        None: Prints 1 if the run completes successfully,
+              prints 2 if the run fails or is canceled.
+
+    The function continuously checks the status of the given `run_id` until
+    it reaches a terminal state (COMPLETED, FAILED, or CANCELLED). It then
+    prints 1 for successful completion and 2 otherwise.
+    """
+    async with get_client() as client:
+        while True:
+            flow_run = await client.read_flow_run(run_id)
+            state = flow_run.state
+
+            if state.type in {
+                StateType.COMPLETED,
+                StateType.FAILED,
+                StateType.CANCELLED,
+            }:
+                return state.type
+
+            # Wait for a few seconds before checking again
+            print(f"Waiting for run with run_id '{run_id}' to finish...")
+            time.sleep(5)
