@@ -63,6 +63,16 @@ integration_tests:
 setup_ollama:
 	@./scripts/setup_ollama.sh
 
+# Cache $ASR_MODEL in hf_cache dir
+cache_asr_model:
+	@PYTHONPATH=./ conda run --no-capture-output -n $(ENV_NAME) \
+		python ./scripts/cache_asr_model.py $(ASR_MODEL)
+
+# Cache $PODCAST_DATASET in hf_cache dir
+cache_dataset:
+	@PYTHONPATH=./ conda run --no-capture-output -n $(ENV_NAME) \
+		python ./scripts/cache_dataset.py $(PODCAST_DATASET)
+
 # Start prefect server and worker
 prefect_start_server:
 	@if ! curl -s -o /dev/null localhost:4200; then \

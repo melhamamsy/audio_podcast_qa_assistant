@@ -1,7 +1,6 @@
 <!-- pgcli postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SETUP_HOST:$POSTGRES_PORT/$POSTGRES_DB -->
 
-<!-- ### Needed for Chunking -->
-<!-- ```python -m spacy download en_core_web_sm``` -->
+<!-- go to: http://127.0.0.1:4200/flow-runs -->
 
 
 # Lex Fridman Podcast QA Assistant
@@ -146,6 +145,53 @@ Before getting started, ensure that the following dependencies are met:
     make setup_ollama
     ```
 
+8. Cache the Automatic Speech Recognition (ASR) model specified in `$ASR_MODEL` in the `.env` file, used to transcribe episode audio. The model is cached in the `./hf_cache` directory created earlier. If the directory doesn’t exist, it gets created here. If the model is partially loaded, Hugging Face will resume from where it stopped. If the model is already cached, it won’t be redownloaded:
+
+    Run the following command:
+
+    ```bash
+    make cache_asr_model
+    ```
+
+9. Cache the Hugging Face podcast dataset to `hf_cache`. <span style="color:orange;">**Warning:**</span> This process is very costly in terms of time and resources, and you may need to spread the download over a few days due to potential download limits. However, this step can be skipped altogether since Defacto Mode is enabled by default. I have already gone through the process and stored the transcribed, chunked, and vectorized data:
+
+    - `data/generated_document_embeddings/vectorized_documents.pkl` (Text+Vectors)
+    - `data/generated_documents/documents.json` (Text only)
+
+    You can use these files directly without needing to download the dataset.
+
+    If you still choose to cache the dataset, run the following command:
+
+    ```bash
+    make cache_dataset
+    ```
+
+10. Prefect Setup (More details will follow regarding its role and how it works).
+
+    a. Update Prefect profiles in `~/.prefect/profiles.toml` with the following configuration:
+
+    ```bash
+    echo 'active = "local-server"
+
+    [profiles.default]
+    PREFECT_API_URL = "http://localhost:4200/api"
+
+    [profiles.local-server]
+    PREFECT_API_URL = "http://localhost:4200/api"
+    PREFECT_API_DATABASE_CONNECTION_URL = "postgresql+asyncpg://postgres:example@localhost:5432/prefect"' >  ~/.prefect/profiles.toml
+    ```
+
+    **Note:** This assumes that the PostgreSQL user is `postgres`, the password is `example`, the host is `localhost`, and the port is `5432`.
+
+    b. Initialize (or reinitialize) Prefect by creating or recreating the Prefect database in the same PostgreSQL instance that hosts the app database. Use the `local-server` profile specified in step (a) and recreate a process work-pool (details will be explained later):
+
+    Run the following command:
+
+    ```bash
+    make reinit_prefect
+    ```
+
+
 These pre-requisites ensure that your environment is set up correctly before running the project.
 
 
@@ -184,30 +230,6 @@ When a new directory is added to the bucket (e.g., 351) and the setup pipeline i
 ```
 To avoid reindexing, if you manually remove a directory from tracked_directories, the pipeline will re-run, delete the indexed documents for that episode, and index the new documents (essentially updating the data).
 
-## Lex Fridman podcast
-https://lexfridman.com/podcast
-https://huggingface.co/datasets/Whispering-GPT/lex-fridman-podcast-transcript-audio
-- Note: metadata tags created manually
-
-## Bucket State
-To indicate tracked directories for orchestration to decide if there are new episodes to index.
-
-## Prefect conf
-~/.prefect/profiles.toml
-
-## ad-hoc
-```
-    prefect deployment run setup_es/ad-hoc -p reindex_es=true -p defacto=true
-    prefect deployment run init_db/ad-hoc -p reinit_db=true
-    prefect deployment run setup_grafana/ad-hoc -p reinit_grafana=true -p recreate_dashboards=true
-```
-
-## Weekly Pipeline
-```
-    prefect deployment ls
-    prefect deployment run process_new_episodes/midnight-every-sunday #Run once for testing
-    ## go to: http://127.0.0.1:4200/flow-runs
-```
 
 ## DO NOT FORGET TO
 ```
