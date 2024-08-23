@@ -5,6 +5,17 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
+
+# Parse the keep-containers-running argument if passed
+if [[ "$1" == "true" || "$1" == "false" ]]; then
+  keep_containers_running=$1
+elif [[ -z "$1" ]]; then
+  keep_containers_running=false
+else
+  echo -e "${RED}ERROR: keep-containers-running should be either 'true' or 'false'.${NC}"
+  exit 1
+fi
+
 # cd to the root directory where docker-compose.yml is located
 cd "$(dirname "$0")/.."
 
@@ -88,5 +99,11 @@ check_connectivity "Streamlit" "streamlit" "Postgres" "postgres://${POSTGRES_HOS
 check_connectivity "Grafana" "grafana" "Postgres" "postgres://${POSTGRES_HOST}:${POSTGRES_PORT:-5432}" "postgres"
 
 
-docker-compose down
+# Optionally stop the containers if keep_containers_running is not true
+if [ "$keep_containers_running" != "true" ]; then
+  docker-compose down
+else
+  echo -e "${GREEN}Containers are kept running as requested.${NC}"; echo; echo
+fi
+
 echo -e "${GREEN}All services are healthy and can communicate with each other.${NC}"

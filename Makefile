@@ -57,7 +57,7 @@ unit_tests:
 
 # Running integration_tests
 integration_tests:
-	@./integration_tests/connectivity_check.sh
+	@./integration_tests/connectivity_check.sh $(keep-containers-running)
 
 # Download ollama models specified as CHAT_MODEL & EMBED_MODEL
 setup_ollama:
