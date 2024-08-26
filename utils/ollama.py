@@ -60,7 +60,7 @@ def embed_document(client, document, model_name="nomic-embed-text"):
         dict: The original document with an added embedding vector for the
               combined 'title' and 'text' fields.
     """
-    titled_text = document["title"] + " " + document["text"]
+    titled_text = document.get("title", "") + " " + document["text"]
 
     document["text_vector"] = get_embedding(
         client=client, text=titled_text, model_name=model_name

@@ -93,28 +93,27 @@ def update_sampling_rate(audio_data, original_rate, target_rate):
     return resampled_audio
 
 
-def transcripe_audio(
+def transcribe_audio(
     audio,
     processor,
     model,
     sampling_rate=16_000,
-    skip_special_tokens=True,
+    **decode_kwargs,
 ):
     """
-    Transcribes audio data using a pre-trained speech-to-text model.
+    Transcribes audio using a pre-trained speech-to-text model.
 
     Args:
-        audio (numpy.ndarray): The audio samples to be transcribed.
-        processor (object): The processor object used to preprocess the audio
-                            data.
-        model (object): The pre-trained model used for transcription.
-        sampling_rate (int, optional): The sampling rate to be used during
-                                       transcription. Defaults to 16,000.
-        skip_special_tokens (bool, optional): Whether to skip special tokens
-                                              during decoding. Defaults to True.
+        audio (numpy.ndarray): Audio samples for transcription.
+        processor (object): Processor for preprocessing audio.
+        model (object): Pre-trained model for transcription.
+        sampling_rate (int, optional): Sampling rate for transcription.
+                                       Defaults to 16,000.
+        **decode_kwargs: Additional decoding options like `skip_special_tokens`,
+                         `output_word_offsets`, and `return_timestamps`.
 
     Returns:
-        list of str: The transcribed text.
+        list of str: Transcribed text.
     """
     input_features = processor(
         audio, sampling_rate=sampling_rate, return_tensors="pt"
@@ -123,7 +122,10 @@ def transcripe_audio(
     predicted_ids = model.generate(input_features)
 
     return processor.batch_decode(
-        predicted_ids, skip_special_tokens=skip_special_tokens
+        predicted_ids,
+        skip_special_tokens=decode_kwargs.get("skip_special_tokens", True),
+        output_word_offsets=decode_kwargs.get("output_word_offsets", False),
+        return_timestamps=decode_kwargs.get("return_timestamps", False),
     )
 
 
@@ -167,12 +169,11 @@ def merge_transcripts(transcripts):
     return merged_transcript
 
 
-def transcripe_episode(
+def transcribe_episode(
     episode,
     processor,
     model,
-    skip_special_tokens=True,
-    **sampling_kwargs,
+    **kwargs,
 ):
     """
     Transcribes an entire audio episode by breaking it into smaller segments.
@@ -181,23 +182,21 @@ def transcripe_episode(
         episode (dict): A dictionary containing:
             - "array" (numpy.ndarray): The audio samples.
             - "sampling_rate" (int): The sampling rate of the audio.
-        processor (object): The processor object used to preprocess the audio
-                            data.
-        model (object): The pre-trained model used for transcription.
-        skip_special_tokens (bool, optional): Whether to skip special tokens
-                                              during decoding. Defaults to True.
-        **sampling_kwargs: Additional keyword arguments:
-            - "minutes" (float): The duration of each segment in minutes.
-                                 Defaults to 2 minutes.
-            - "target_sampling_rate" (int): The sampling rate to be used
-                                            during transcription. Defaults to
-                                            16,000.
+        processor (object): Processor for preprocessing audio.
+        model (object): Pre-trained model for transcription.
+        minutes (float, optional): Duration of each segment in minutes.
+                                   Defaults to 2 minutes.
+        target_sampling_rate (int, optional): Sampling rate for transcription.
+                                              Defaults to 16,000.
+        **decode_kwargs: Additional decoding options passed to `transcribe_audio`,
+                         such as `skip_special_tokens`, `output_word_offsets`, and
+                         `return_timestamps`.
 
     Returns:
         str: The fully transcribed and merged episode text.
     """
-    minutes = sampling_kwargs.get("minutes", 2)
-    target_sampling_rate = sampling_kwargs.get("target_sampling_rate", 16_000)
+    minutes = kwargs.get("minutes", 2)
+    target_sampling_rate = kwargs.get("target_sampling_rate", 16_000)
 
     transcripts_list = []
     episode_length = len(episode["array"])
@@ -217,8 +216,8 @@ def transcripe_episode(
 
         audio = sample_audio(episode, start_from=start_from, minutes=minutes)
         audio = update_sampling_rate(audio, orig_sampling_rate, target_sampling_rate)
-        transcripts_list += transcripe_audio(
-            audio, processor, model, target_sampling_rate, skip_special_tokens
+        transcripts_list += transcribe_audio(
+            audio, processor, model, target_sampling_rate, **kwargs
         )
 
     return merge_transcripts(transcripts_list)

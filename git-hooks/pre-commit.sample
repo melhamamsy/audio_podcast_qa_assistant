@@ -1,0 +1,50 @@
+#!/bin/bash
+
+
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+
+# echo "===================================> Checking for hard-coded secrets..."
+# if git grep -E "[a-zA-Z0-9]{20,}"; then
+#     echo "Hardcoded secret detected, aborting."
+#     exit 1
+# fi
+# echo "===================================> Done."; echo
+
+
+echo "===================================> Running Unit Tests with pytest..."
+if ! make unit_tests; then
+    echo -e "${RED}Unit tests failed. Commit aborted.${NC}"
+    exit 1
+else
+    echo -e "${GREEN}All unit tests passed.${NC}"
+fi
+echo "===================================> Done."; echo
+
+
+echo "===================================> Formatting Code using black & isort..."
+make format_py
+echo "===================================> Done."; echo
+
+
+echo "===================================> Tracking changes made by black & isort..."
+git add .
+echo "===================================> Done."; echo
+
+
+echo "===================================> Linting Code using pylint..."
+pylint_output=$(make lint_py)
+echo "$pylint_output"
+
+
+score=$(echo "$pylint_output" | grep "Your code has been rated at" | awk '{print $7}' | cut -d'/' -f1)
+if [ "$score" != "10.00" ]; then
+    echo -e "${RED}Pylint score is less than 10/10 ($score/10). Commit aborted.${NC}"
+    exit 1
+else
+    echo -e "${GREEN}Pylint score is 10/10. Proceeding with commit.${NC}"
+fi
+echo "===================================> Done."; echo

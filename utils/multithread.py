@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 from tqdm.auto import tqdm
 
 
-def map_progress(f, seq, max_workers=1):
+def map_progress(f, seq, max_workers=1, verbose=True):
     """
     Map a function over a sequence with progress tracking.
 
@@ -19,6 +19,7 @@ def map_progress(f, seq, max_workers=1):
         seq (iterable): The sequence of elements to process.
         max_workers (int, optional): The maximum number of threads
             to use. Default is 1.
+        verbose (bool): Whether to log progress
 
     Returns:
         list: A list of results from applying the function to each
@@ -35,9 +36,10 @@ def map_progress(f, seq, max_workers=1):
             future.add_done_callback(lambda p: progress.update())
             results.append(future.result())
 
-            if i % (max(seq_len, 20) // 20) == 0:
+            if (i % (max(seq_len, 20) // 20) == 0) and verbose:
                 print(f"{len(results)}/{seq_len} items processed so far...")
-
-        print(f"{len(results)}/{seq_len} items processed.")
+        
+        if verbose:
+            print(f"{len(results)}/{seq_len} items processed.")
 
     return results

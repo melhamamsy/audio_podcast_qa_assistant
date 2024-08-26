@@ -30,10 +30,10 @@ This project was developed and tested in a local environment. Below are the key 
 - **RAM**: 15 GiB
 - **GPU**: NVIDIA GeForce GTX 1660 Ti Mobile
 
-The system was tested under the above requirements. If tested for Windows, a separate branch will be linked here.
+The project was tested under the above requirements. If tested for Windows, a separate branch will be linked here.
 
 
-## Pre-requisites
+## Environment Setup and Configuration
 
 Before getting started, ensure that the following dependencies are met:
 

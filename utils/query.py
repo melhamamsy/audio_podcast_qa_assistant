@@ -18,20 +18,11 @@ import time
 
 from exceptions.exceptions import QueryTypeWrongValueError, WrongPomptParams
 from utils.ollama import get_embedding
-from utils.utils import (
-    find_parameters,
-    flatten_list_of_lists,
-    is_sublist,
-    parse_json_response,
-)
-from utils.variables import (
-    ES_CLIENT,
-    EVAL_PROMPT_TEMPLATE_PATH,
-    INDEX_NAME,
-    OLLAMA_CLIENT,
-    OPENAI_CLIENT,
-    QA_PROMPT_TEMPLATE_PATH,
-)
+from utils.utils import (find_parameters, flatten_list_of_lists, is_sublist,
+                         parse_json_response)
+from utils.variables import (ES_CLIENT, EVAL_PROMPT_TEMPLATE_PATH, INDEX_NAME,
+                             OLLAMA_CLIENT, OPENAI_CLIENT,
+                             QA_PROMPT_TEMPLATE_PATH)
 
 
 def build_context(search_results):
@@ -90,7 +81,7 @@ def build_prompt(prompt_template_path=None, **document_dict):
     return prompt
 
 
-def elastic_search_text(query, title_query=None, boost=None):
+def elastic_search_text(query, title_query=None, boost=None, size=5):
     """
     Perform a text-based search using Elasticsearch.
 
@@ -98,13 +89,14 @@ def elastic_search_text(query, title_query=None, boost=None):
         query (str): The main query string to search for.
         title_query (str, Optional): An optional title filter to narrow the search.
         boost (float, Optional): An optional boost to the qeury
+        size (int): Number of documents to retrieve, Default is 5.
 
     Returns:
         list: A list of search results matching the query.
     """
     search_query = {
         "_source": ["text", "title", "tags", "chunk_id", "id"],
-        "size": 10,
+        "size": size,
         "query": {
             "bool": {
                 "must": {
@@ -137,7 +129,7 @@ def elastic_search_text(query, title_query=None, boost=None):
     ]
 
 
-def elastic_search_knn(query_vector, title_query=None, boost=None):
+def elastic_search_knn(query_vector, title_query=None, boost=None, size=5):
     """
     Perform a K-Nearest Neighbors (KNN) search using Elasticsearch.
 
@@ -145,6 +137,7 @@ def elastic_search_knn(query_vector, title_query=None, boost=None):
         query_vector (list): The query vector for similarity search.
         title_query (str, Optional): An optional title filter to narrow the search.
         boost (float, Optional): An optional boost to the qeury
+        size (int): Number of documents to retrieve, Default is 5.
 
     Returns:
         list: A list of search results matching the query.
@@ -166,7 +159,7 @@ def elastic_search_knn(query_vector, title_query=None, boost=None):
 
     search_query = {
         "knn": knn,
-        "size": 10,
+        "size": size,
         "_source": ["text", "title", "tags", "chunk_id", "id"],
     }
 
@@ -282,10 +275,10 @@ def elastic_search_hybrid_rrf(
         vector_boost = text_boost = 0.5
 
     knn_results = elastic_search_knn(
-        query_vector, title_query=title_query, boost=vector_boost
+        query_vector, title_query=title_query, boost=vector_boost, size=10
     )
     keyword_results = elastic_search_text(
-        query, title_query=title_query, boost=text_boost
+        query, title_query=title_query, boost=text_boost, size=10
     )
 
     results = knn_results + keyword_results
@@ -543,28 +536,3 @@ def get_answer(query, title_query, model_choice, search_type):
         "eval_total_tokens": evaluation["tokens"]["total_tokens"],
         "openai_cost": openai_cost,
     }
-
-
-def openai_rephrase(episode_questions, prompt_template_path, model="gpt-4o-mini"):
-    """
-    Rephrase a set of questions using OpenAI.
-
-    Args:
-        episode_questions (list): A list of questions to rephrase.
-        prompt_template_path (str): Path to the prompt template.
-        model (str, optional): The model to use for rephrasing. Defaults to "gpt-4o-mini".
-
-    Returns:
-        list: The rephrased questions.
-    """
-    prompt = build_prompt(prompt_template_path, episode_questions=episode_questions)
-    response = OPENAI_CLIENT.chat.completions.create(
-        model=model,
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt},
-        ],
-    )
-
-    # Extract and print the response
-    return parse_json_response(response.choices[0].message.content)
