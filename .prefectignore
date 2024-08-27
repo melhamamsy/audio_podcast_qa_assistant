@@ -1,8 +1,9 @@
+__pycache__/
 hf_cache/
 data/
 bucket/
 notebooks/
-git-hook/
+git-hooks/
 tests/
 README.md
 requirements.txt

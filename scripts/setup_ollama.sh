@@ -34,9 +34,22 @@ docker-compose exec -e CHAT_MODEL="$CHAT_MODEL" -e EMBED_MODEL="$EMBED_MODEL" ol
   MANIFESTS_DIR="$HOME/.ollama/models/manifests/registry.ollama.ai"
   BLOBS_DIR="$HOME/.ollama/models/blobs"
 
+  # Determine the correct manifest paths based on the format of CHAT_MODEL and EMBED_MODEL
+  if [[ "$CHAT_MODEL" == */* ]]; then
+    chat_model_path="$MANIFESTS_DIR/$CHAT_MODEL/latest"
+  else
+    chat_model_path="$MANIFESTS_DIR/library/$CHAT_MODEL/latest"
+  fi
+
+  if [[ "$EMBED_MODEL" == */* ]]; then
+    embed_model_path="$MANIFESTS_DIR/$EMBED_MODEL/latest"
+  else
+    embed_model_path="$MANIFESTS_DIR/library/$EMBED_MODEL/latest"
+  fi
+
   manifest_paths=(
-    "$MANIFESTS_DIR/library/$CHAT_MODEL/latest"
-    "$MANIFESTS_DIR/library/$EMBED_MODEL/latest"
+    "$chat_model_path"
+    "$embed_model_path"
   )
 
   # Function to check if a file exists

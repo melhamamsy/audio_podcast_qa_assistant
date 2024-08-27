@@ -12,33 +12,29 @@ def retrieve_relevance(question_dict, search_func, **search_func_keys):
     Calculate the relevance of search results by comparing them to the ground truth.
 
     Args:
-        question_dict (dict): A dictionary containing information about the question, 
+        question_dict (dict): A dictionary containing information about the question,
                               including 'episode_id', 'chunk_id', and other relevant fields.
-        search_func (callable): The search function to use for retrieving documents. 
+        search_func (callable): The search function to use for retrieving documents.
                                 This function should accept keyword arguments.
         search_func_keys (dict): Key-value pairs where:
             - The keys represent the arguments required by the search function.
-            - The values represent the corresponding fields in `question_dict` to extract 
+            - The values represent the corresponding fields in `question_dict` to extract
             and pass to `search_func`.
 
     Returns:
-        list: A list of booleans indicating whether each document in the search results 
+        list: A list of booleans indicating whether each document in the search results
               matches the ground truth `(episode_id, chunk_id)`.
 
     Example:
-        If `search_func_keys = {"query": "text"}`, the function will extract 
+        If `search_func_keys = {"query": "text"}`, the function will extract
         `question_dict["text"]` and pass it as `query=<value>` to `search_func`.
     """
-    
-    search_args = {
-        key: question_dict.get(val) for key, val in search_func_keys.items()
-    }
-    ground_truth = (question_dict['episode_id'], question_dict['chunk_id'])
+
+    search_args = {key: question_dict.get(val) for key, val in search_func_keys.items()}
+    ground_truth = (question_dict["episode_id"], question_dict["chunk_id"])
     return [
-        (doc['id'], doc['chunk_id']) == ground_truth\
-        for doc in search_func(
-            **search_args
-        )
+        (doc["id"], doc["chunk_id"]) == ground_truth
+        for doc in search_func(**search_args)
     ]
 
 

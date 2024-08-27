@@ -38,7 +38,7 @@ def map_progress(f, seq, max_workers=1, verbose=True):
 
             if (i % (max(seq_len, 20) // 20) == 0) and verbose:
                 print(f"{len(results)}/{seq_len} items processed so far...")
-        
+
         if verbose:
             print(f"{len(results)}/{seq_len} items processed.")
 

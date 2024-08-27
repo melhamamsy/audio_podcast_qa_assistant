@@ -1,8 +1,9 @@
+__pycache__/
 .pytest_cache/
 .vscode/
 bucket/
 data/
-git-hook/
+git-hooks/
 hf_cache/
 notebooks/
 README.md

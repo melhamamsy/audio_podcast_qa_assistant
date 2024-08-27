@@ -19,7 +19,7 @@ from datasets import Dataset, load_dataset
 from tqdm.auto import tqdm
 from transformers import WhisperForConditionalGeneration, WhisperProcessor
 
-from utils.asr import read_mp3, transcripe_episode
+from utils.asr import read_mp3, transcribe_episode
 from utils.chunking import chunk_large_text, preindex_process_text
 from utils.elasticsearch import (
     create_elasticsearch_index,
@@ -174,7 +174,7 @@ def transcripe_and_cache_episodes(
         episode_title = episode["title"].split(" | ")[0]
 
         if episode_title not in cached_episodes:
-            episode["text"] = transcripe_episode(
+            episode["text"] = transcribe_episode(
                 episode=episode["audio"],
                 processor=processor,
                 model=model,

@@ -167,7 +167,7 @@ def generate_document_id(doc):
 
 def extract_item_by_keys(dict_list, **kwargs):
     """
-    Extract first item occurence from a list of dictionaries 
+    Extract first item occurence from a list of dictionaries
         where all key-value pairs match the specified conditions.
 
     Args:
@@ -268,7 +268,7 @@ def save_to_pickle(obj, pickle_file_path):
     Returns:
         None
     """
-    with open(pickle_file_path, 'wb') as pickle_file:
+    with open(pickle_file_path, "wb") as pickle_file:
         pickle.dump(obj, pickle_file)
 
 
@@ -282,7 +282,7 @@ def load_pickle(pickle_file_path):
     Returns:
         object: The Python object that was loaded from the pickle file.
     """
-    with open(pickle_file_path, 'rb') as file:
+    with open(pickle_file_path, "rb") as file:
         return pickle.load(file)
 
 

@@ -7,14 +7,6 @@ GREEN='\033[0;32m'
 NC='\033[0m'
 
 
-# echo "===================================> Checking for hard-coded secrets..."
-# if git grep -E "[a-zA-Z0-9]{20,}"; then
-#     echo "Hardcoded secret detected, aborting."
-#     exit 1
-# fi
-# echo "===================================> Done."; echo
-
-
 echo "===================================> Running Unit Tests with pytest..."
 if ! make unit_tests; then
     echo -e "${RED}Unit tests failed. Commit aborted.${NC}"

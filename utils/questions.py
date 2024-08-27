@@ -14,8 +14,7 @@ from collections import defaultdict
 from json import JSONDecodeError
 
 from utils.query import build_prompt
-from utils.utils import (
-    parse_json_response, extract_item_by_keys, save_json_file)
+from utils.utils import extract_item_by_keys, parse_json_response, save_json_file
 from utils.variables import OPENAI_CLIENT, PROJECT_DIR
 
 
@@ -105,7 +104,9 @@ def group_questions_by_episode(questions):
     return questions_per_episode
 
 
-def openai_process_questions(episode_questions, prompt_template_path, model="gpt-4o-mini"):
+def openai_process_questions(
+    episode_questions, prompt_template_path, model="gpt-4o-mini"
+):
     """
     Process a list of questions using OpenAI as per prompt.
 
@@ -134,10 +135,10 @@ def openai_process_questions(episode_questions, prompt_template_path, model="gpt
             content,
             os.path.join(
                 PROJECT_DIR,
-                'data/generated_questions/episodes',
-                episode_id + '.json',
+                "data/generated_questions/episodes",
+                episode_id + ".json",
             ),
-            replace=True
+            replace=True,
         )
         return content
     except JSONDecodeError as e:
@@ -159,24 +160,28 @@ def filter_corrupted_qs(questions, original_data):
     Returns:
         list: A list of intact questions that meet the criteria.
     """
+
     def is_valid_question(question):
-        return (
-            isinstance(question, dict) and
-            sorted(question.keys()) == ['chunk_id', 'episode_id', 'question']
-        )
+        return isinstance(question, dict) and sorted(question.keys()) == [
+            "chunk_id",
+            "episode_id",
+            "question",
+        ]
 
     def is_question_in_original_text(question, original_data):
         original_chunk_text = extract_item_by_keys(
             original_data,
-            id=question['episode_id'],
-            chunk_id=question['chunk_id'],
+            id=question["episode_id"],
+            chunk_id=question["chunk_id"],
         )["text"]
 
         return question["question"].lower() in original_chunk_text.lower()
 
     intact_questions = [
-        question for question in questions
-        if is_valid_question(question) and is_question_in_original_text(question, original_data)
+        question
+        for question in questions
+        if is_valid_question(question)
+        and is_question_in_original_text(question, original_data)
     ]
 
     return intact_questions
@@ -192,6 +197,6 @@ def count_question_marks(dataset):
     Returns:
         int: The total number of question marks in the list.
     """
-    
+
     text_list = [ep["text"] for ep in dataset]
-    return sum(text.count('?') for text in text_list)
+    return sum(text.count("?") for text in text_list)
