@@ -1,0 +1,29 @@
+{
+    "questions": [
+        {
+            "episode_id": "yCd3CzGSte8",
+            "chunk_id": 1,
+            "question": "So basic, what was the first language that you remember yourself maybe falling in love with, like really connecting with?"
+        },
+        {
+            "episode_id": "yCd3CzGSte8",
+            "chunk_id": 10,
+            "question": "Can you even just, with language, try to describe how you turn a C++ program into code?"
+        },
+        {
+            "episode_id": "yCd3CzGSte8",
+            "chunk_id": 23,
+            "question": "What are some moments where you had set back and really proud of what's been accomplished?"
+        },
+        {
+            "episode_id": "yCd3CzGSte8",
+            "chunk_id": 45,
+            "question": "So you still believe in the value of open source and these kinds of things?"
+        },
+        {
+            "episode_id": "yCd3CzGSte8",
+            "chunk_id": 46,
+            "question": "Do you mean the career decision of jumping from a comfortable good job into the unknown or?"
+        }
+    ]
+}

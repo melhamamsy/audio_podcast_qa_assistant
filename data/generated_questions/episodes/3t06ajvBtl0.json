@@ -1,0 +1,44 @@
+{
+    "Type 2 Questions": [
+        {
+            "episode_id": "3t06ajvBtl0",
+            "chunk_id": 21,
+            "question": "What are the different parts of the brain that you're curious about that you've studied?"
+        },
+        {
+            "episode_id": "3t06ajvBtl0",
+            "chunk_id": 23,
+            "question": "Just to get a sense, are us humans special in the presence of the prefrontal cortex?"
+        },
+        {
+            "episode_id": "3t06ajvBtl0",
+            "chunk_id": 31,
+            "question": "What lessons can we draw from that that we can bring into the artificial intelligence world?"
+        },
+        {
+            "episode_id": "3t06ajvBtl0",
+            "chunk_id": 42,
+            "question": "Like what on the team at DeepMind, what kind of human can occupy these two realms?"
+        },
+        {
+            "episode_id": "3t06ajvBtl0",
+            "chunk_id": 45,
+            "question": "Do you also share the feeling that not enough folks are studying this aspect of interaction?"
+        },
+        {
+            "episode_id": "3t06ajvBtl0",
+            "chunk_id": 50,
+            "question": "How do you create AI systems that increase the quality and the health of a conversation?"
+        },
+        {
+            "episode_id": "3t06ajvBtl0",
+            "chunk_id": 52,
+            "question": "What would it mean for an AI system to really come to understand what humans want?"
+        },
+        {
+            "episode_id": "3t06ajvBtl0",
+            "chunk_id": 52,
+            "question": "You know, humans want help with certain things, but they don't want everything done for them, right?"
+        }
+    ]
+}

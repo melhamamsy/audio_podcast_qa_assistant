@@ -1,0 +1,54 @@
+{
+    "questions": [
+        {
+            "episode_id": "xlMTWfkQqbY",
+            "chunk_id": 2,
+            "question": "One, do you think we'll one day find cures for all major diseases known today?"
+        },
+        {
+            "episode_id": "xlMTWfkQqbY",
+            "chunk_id": 2,
+            "question": "On the scale of zero to 100, where are we in understanding the fundamental mechanisms of all major diseases?"
+        },
+        {
+            "episode_id": "xlMTWfkQqbY",
+            "chunk_id": 4,
+            "question": "Do you see the disease and longevity as overlapping completely, partially, or not at all?"
+        },
+        {
+            "episode_id": "xlMTWfkQqbY",
+            "chunk_id": 8,
+            "question": "Are there moments, events, perhaps if I may ask, tragedies in your own life that catalyze this passion?"
+        },
+        {
+            "episode_id": "xlMTWfkQqbY",
+            "chunk_id": 9,
+            "question": "So can you try to describe what is an animal model and what is a disease in a dish model?"
+        },
+        {
+            "episode_id": "xlMTWfkQqbY",
+            "chunk_id": 24,
+            "question": "So what have you learned about effective education from this process of playing, of experimenting with different ideas?"
+        },
+        {
+            "episode_id": "xlMTWfkQqbY",
+            "chunk_id": 28,
+            "question": "Again, the future could be very far away, but where's the trend going do you think?"
+        },
+        {
+            "episode_id": "xlMTWfkQqbY",
+            "chunk_id": 32,
+            "question": "Is it surprising to you that neural networks are able to, in many cases, do these things?"
+        },
+        {
+            "episode_id": "xlMTWfkQqbY",
+            "chunk_id": 35,
+            "question": "Is there good mechanisms, ideas of how to allow learning systems to provide that uncertainty along with their predictions?"
+        },
+        {
+            "episode_id": "xlMTWfkQqbY",
+            "chunk_id": 35,
+            "question": "Is that something you think is within our reach to be thinking about as computer scientists?"
+        }
+    ]
+}

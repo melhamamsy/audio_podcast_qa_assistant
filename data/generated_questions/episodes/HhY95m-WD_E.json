@@ -1,0 +1,59 @@
+{
+    "questions": [
+        {
+            "episode_id": "HhY95m-WD_E",
+            "chunk_id": 17,
+            "question": "Is it possible to have a physical object that on inspection people won't be able to tell?"
+        },
+        {
+            "episode_id": "HhY95m-WD_E",
+            "chunk_id": 21,
+            "question": "So how much of the creation of the adversarial example is art and how much is science?"
+        },
+        {
+            "episode_id": "HhY95m-WD_E",
+            "chunk_id": 23,
+            "question": "What do you think it reveals to us about our machine learning approaches of today?"
+        },
+        {
+            "episode_id": "HhY95m-WD_E",
+            "chunk_id": 34,
+            "question": "And what's your intuition, how people should be worried and how people should defend against it?"
+        },
+        {
+            "episode_id": "HhY95m-WD_E",
+            "chunk_id": 36,
+            "question": "So what do you see as the main vulnerabilities in the privacy of data and how do we protect it?"
+        },
+        {
+            "episode_id": "HhY95m-WD_E",
+            "chunk_id": 56,
+            "question": "First, let me ask, what is program synthesis and can neural networks be used to learn programs from data?"
+        },
+        {
+            "episode_id": "HhY95m-WD_E",
+            "chunk_id": 63,
+            "question": "Is there another possible universe where you could have become a theoretical physicist like Caltech or something like that?"
+        },
+        {
+            "episode_id": "HhY95m-WD_E",
+            "chunk_id": 71,
+            "question": "Is there some kind of even greater things than you who should define the meaning of your life?"
+        },
+        {
+            "episode_id": "HhY95m-WD_E",
+            "chunk_id": 73,
+            "question": "And another question is like, what does it really mean by the meaning of life?"
+        },
+        {
+            "episode_id": "HhY95m-WD_E",
+            "chunk_id": 75,
+            "question": "Isn't it funny that the growth seems to be the more important thing than the thing you're growing towards?"
+        },
+        {
+            "episode_id": "HhY95m-WD_E",
+            "chunk_id": 76,
+            "question": "But how do you know that that is really the meaning of life or the meaning of your life?"
+        }
+    ]
+}

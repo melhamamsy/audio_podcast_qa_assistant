@@ -1,0 +1,54 @@
+{
+    "Type 2 Questions": [
+        {
+            "episode_id": "aGBLRlLe7X8",
+            "chunk_id": 5,
+            "question": "And I listen to some podcasts, and I think like, what is interesting about this?"
+        },
+        {
+            "episode_id": "aGBLRlLe7X8",
+            "chunk_id": 19,
+            "question": "And a question interesting to me about aliens, what is life when we visit another planet?"
+        },
+        {
+            "episode_id": "aGBLRlLe7X8",
+            "chunk_id": 23,
+            "question": "Just for context, how many tokens, like what order of magnitude number of tokens is required for a word?"
+        },
+        {
+            "episode_id": "aGBLRlLe7X8",
+            "chunk_id": 36,
+            "question": "And so I guess big question for the community is should we train from scratch or should we embrace modularity?"
+        },
+        {
+            "episode_id": "aGBLRlLe7X8",
+            "chunk_id": 38,
+            "question": "What's your sense of, what is meta-learning look like, do you think, with all the wisdom we've learned so far?"
+        },
+        {
+            "episode_id": "aGBLRlLe7X8",
+            "chunk_id": 45,
+            "question": "There's a very active area of research about how do you compute the distance between two images?"
+        },
+        {
+            "episode_id": "aGBLRlLe7X8",
+            "chunk_id": 48,
+            "question": "And then one that is often not, maybe nowadays it is more clear, is benchmark progress, right?"
+        },
+        {
+            "episode_id": "aGBLRlLe7X8",
+            "chunk_id": 51,
+            "question": "So if I'm thinking the next word that I'll write is cat or dog, okay?"
+        },
+        {
+            "episode_id": "aGBLRlLe7X8",
+            "chunk_id": 63,
+            "question": "And how do I make benchmark for the community to mark and push a progress?"
+        },
+        {
+            "episode_id": "aGBLRlLe7X8",
+            "chunk_id": 74,
+            "question": "Do we, which features do we have in one of them as communications of sentience?"
+        }
+    ]
+}

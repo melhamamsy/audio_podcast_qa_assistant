@@ -1,0 +1,24 @@
+{
+    "type_2_questions": [
+        {
+            "episode_id": "YUYagvESisE",
+            "chunk_id": 15,
+            "question": "What's your approach to solving these kinds of problems where the line between success and failure seems to be thin?"
+        },
+        {
+            "episode_id": "YUYagvESisE",
+            "chunk_id": 24,
+            "question": "How do you take GM into the future where a large part of the fleet would be autonomous perhaps?"
+        },
+        {
+            "episode_id": "YUYagvESisE",
+            "chunk_id": 37,
+            "question": "So you're a pretty good person to ask, what does it take to build a successful startup?"
+        },
+        {
+            "episode_id": "YUYagvESisE",
+            "chunk_id": 39,
+            "question": "Is there something you regret, something you not necessarily regret, but if you go back, you could do differently?"
+        }
+    ]
+}

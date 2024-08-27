@@ -1,0 +1,39 @@
+{
+    "questions": [
+        {
+            "episode_id": "J6XcP4JOHmk",
+            "chunk_id": 22,
+            "question": "A lot of music programs will start out by saying, which of these artists do you like?"
+        },
+        {
+            "episode_id": "J6XcP4JOHmk",
+            "chunk_id": 49,
+            "question": "But you think, will Swift creep in there as a thing that people start using?"
+        },
+        {
+            "episode_id": "J6XcP4JOHmk",
+            "chunk_id": 51,
+            "question": "What do you find is the bottleneck for people usually, except getting started and setting stuff up?"
+        },
+        {
+            "episode_id": "J6XcP4JOHmk",
+            "chunk_id": 53,
+            "question": "So what advice do you have for someone who wants to get started in deep learning?"
+        },
+        {
+            "episode_id": "J6XcP4JOHmk",
+            "chunk_id": 59,
+            "question": "In generally speaking, not for yourself, but how do you make money during that process?"
+        },
+        {
+            "episode_id": "J6XcP4JOHmk",
+            "chunk_id": 60,
+            "question": "So where else the lifestyle exit if you can sell something for $10 million and you've made it, right?"
+        },
+        {
+            "episode_id": "J6XcP4JOHmk",
+            "chunk_id": 67,
+            "question": "How do we ensure an appeals process for humans that are impacted by my algorithm?"
+        }
+    ]
+}

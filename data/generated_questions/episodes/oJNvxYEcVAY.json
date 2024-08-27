@@ -1,0 +1,34 @@
+{
+    "questions": [
+        {
+            "episode_id": "oJNvxYEcVAY",
+            "chunk_id": 47,
+            "question": "Are you a data scientist?"
+        },
+        {
+            "episode_id": "oJNvxYEcVAY",
+            "chunk_id": 85,
+            "question": "How does he make it look easy?"
+        },
+        {
+            "episode_id": "oJNvxYEcVAY",
+            "chunk_id": 87,
+            "question": "In what sport do you think you can beat Magnus 10 out of 10 times?"
+        },
+        {
+            "episode_id": "oJNvxYEcVAY",
+            "chunk_id": 95,
+            "question": "In terms of getting nine hours of sleep, does that come difficult to you?"
+        },
+        {
+            "episode_id": "oJNvxYEcVAY",
+            "chunk_id": 110,
+            "question": "Can you comment on what happened for people who have no clue what you were talking about?"
+        },
+        {
+            "episode_id": "oJNvxYEcVAY",
+            "chunk_id": 127,
+            "question": "If you could be someone else for a day, alive or dead, who would you be?"
+        }
+    ]
+}

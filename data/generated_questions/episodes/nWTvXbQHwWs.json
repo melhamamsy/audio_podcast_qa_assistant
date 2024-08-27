@@ -1,0 +1,104 @@
+{
+    "questions": [
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 56,
+            "question": "What is the vision for their vision for, I would say the future of computing?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 60,
+            "question": "So is this, is RISC-V in this whole process, is it potentially the future of all computing devices?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 64,
+            "question": "So do you think, do you agree with Dave Patterson and many folks that Moore's Law is dead?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 65,
+            "question": "And the year before you had a Pentium 33 and now it's twice as fast, right?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 69,
+            "question": "Can you summarize the key ideas of each of the five parts you've written about?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 72,
+            "question": "These things should be able to be in different processes on your machine and why just processes?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 78,
+            "question": "But maybe just to linger on it, like what does it take to run in your network fast?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 78,
+            "question": "Is it the compiler nerds working on that, or is it a whole new group of people?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 81,
+            "question": "Or can we run it on a, you know, with a RISC-V architecture, a bunch of CPUs?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 83,
+            "question": "I don't know that quantum computers are mature enough and accessible enough to be figured out yet, right?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 84,
+            "question": "I forgot to ask, what programming language do you think the simulation is written in?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 89,
+            "question": "Is this now time to go back to college and take a class and learn a new skill?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 89,
+            "question": "If you can afford to do that, is this time to like, literally move in with the parents, right?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 91,
+            "question": "And is there something that we can like, yeah, have you observed that in other places?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 102,
+            "question": "What happens when I make a classification that's wrong and now I hurt somebody, right?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 104,
+            "question": "So I have access to the GPT-3 API, would I be able to generate Swift code, for example?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 106,
+            "question": "How do I say I want a webpage that's got a shopping cart and this and that?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 108,
+            "question": "Are we just pattern matching based on what we have and then reverse justify it to ourselves?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 111,
+            "question": "How can I take what I'm good at and like bring it into the world?"
+        },
+        {
+            "episode_id": "nWTvXbQHwWs",
+            "chunk_id": 113,
+            "question": "And so we're doing our thing, we think we have purpose, but do we really?"
+        }
+    ]
+}

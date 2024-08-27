@@ -1,0 +1,34 @@
+{
+    "Type 2 Questions": [
+        {
+            "episode_id": "6z1JwZbX4dQ",
+            "chunk_id": 2,
+            "question": "How are all of these you go like New York City, all of these buildings standing?"
+        },
+        {
+            "episode_id": "6z1JwZbX4dQ",
+            "chunk_id": 35,
+            "question": "Maybe ask the big silly question first, which is, what do you find beautiful about mathematics?"
+        },
+        {
+            "episode_id": "6z1JwZbX4dQ",
+            "chunk_id": 36,
+            "question": "So maybe at the high level, can you say what is the International Mathematical Olympiad?"
+        },
+        {
+            "episode_id": "6z1JwZbX4dQ",
+            "chunk_id": 54,
+            "question": "What kind of discoveries would lead us to to to prove that P does not equal to NP?"
+        },
+        {
+            "episode_id": "6z1JwZbX4dQ",
+            "chunk_id": 80,
+            "question": "Do you see as there being a lot of opportunities for improving how we vote?"
+        },
+        {
+            "episode_id": "6z1JwZbX4dQ",
+            "chunk_id": 72,
+            "question": "Can you describe the data structure of a voting tree and what are some interesting results on it?"
+        }
+    ]
+}

@@ -1,0 +1,49 @@
+{
+    "questions": [
+        {
+            "episode_id": "0jspaMLxBig",
+            "chunk_id": 13,
+            "question": "So let me ask, why do you like using a marker and whiteboard, even on the biggest of stages?"
+        },
+        {
+            "episode_id": "0jspaMLxBig",
+            "chunk_id": 25,
+            "question": "So how does one get started in deep learning and where does deep learning that I fit into that?"
+        },
+        {
+            "episode_id": "0jspaMLxBig",
+            "chunk_id": 27,
+            "question": "How do you build up a neural network from a single logistic unit, stack of layers to different activation functions?"
+        },
+        {
+            "episode_id": "0jspaMLxBig",
+            "chunk_id": 31,
+            "question": "Do you find reinforcement learning to be a useful part of the teaching process or no?"
+        },
+        {
+            "episode_id": "0jspaMLxBig",
+            "chunk_id": 46,
+            "question": "Is there anything that stands out between those options or are they all beautiful different journeys that people should consider?"
+        },
+        {
+            "episode_id": "0jspaMLxBig",
+            "chunk_id": 56,
+            "question": "So what are the best industries, the biggest industries where AI can help, perhaps outside the software tech sector?"
+        },
+        {
+            "episode_id": "0jspaMLxBig",
+            "chunk_id": 58,
+            "question": "Are there concrete challenges that companies face that you see as important for them to solve?"
+        },
+        {
+            "episode_id": "0jspaMLxBig",
+            "chunk_id": 62,
+            "question": "Do you think we human beings will ever build a human level intelligence or superhuman level intelligence system?"
+        },
+        {
+            "episode_id": "0jspaMLxBig",
+            "chunk_id": 65,
+            "question": "And two, are there moments you're especially proud of, moments that made you truly happy?"
+        }
+    ]
+}

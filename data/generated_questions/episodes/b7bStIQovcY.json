@@ -1,0 +1,44 @@
+{
+    "questions": [
+        {
+            "episode_id": "b7bStIQovcY",
+            "chunk_id": 7,
+            "question": "Do you think there's something special and magical about poker and the way people think about it?"
+        },
+        {
+            "episode_id": "b7bStIQovcY",
+            "chunk_id": 19,
+            "question": "Can you maybe non-mathematically provide the intuition why it all falls apart with three or more players?"
+        },
+        {
+            "episode_id": "b7bStIQovcY",
+            "chunk_id": 22,
+            "question": "Do you think human behavior is amenable to this kind of modeling outside of the poker games?"
+        },
+        {
+            "episode_id": "b7bStIQovcY",
+            "chunk_id": 24,
+            "question": "Do you think that aspect of human behavior can use these kinds of imperfect information approaches, modeling?"
+        },
+        {
+            "episode_id": "b7bStIQovcY",
+            "chunk_id": 30,
+            "question": "Can we design something like traffic lights to be smart where it gets outcomes that we want?"
+        },
+        {
+            "episode_id": "b7bStIQovcY",
+            "chunk_id": 34,
+            "question": "What do you think would be really, you know, a powerful result that would be surprising?"
+        },
+        {
+            "episode_id": "b7bStIQovcY",
+            "chunk_id": 36,
+            "question": "Are they explainable or do they suffer from the same problems as neural networks do?"
+        },
+        {
+            "episode_id": "b7bStIQovcY",
+            "chunk_id": 38,
+            "question": "Why in theory, you could see how things would go terribly wrong and somehow yet, they have not?"
+        }
+    ]
+}

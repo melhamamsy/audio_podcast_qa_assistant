@@ -1,0 +1,29 @@
+{
+    "questions": [
+        {
+            "episode_id": "STFcvzoxVw4",
+            "chunk_id": 4,
+            "question": "Do you think we will ever have the tools to try to describe that process of learning?"
+        },
+        {
+            "episode_id": "STFcvzoxVw4",
+            "chunk_id": 15,
+            "question": "How do you feel about the success of a system like AlphaGo at beating the game of Go?"
+        },
+        {
+            "episode_id": "STFcvzoxVw4",
+            "chunk_id": 19,
+            "question": "Do you think it's interesting because it's challenging and reveals interesting principles that allow you to get those bounds?"
+        },
+        {
+            "episode_id": "STFcvzoxVw4",
+            "chunk_id": 21,
+            "question": "So what is the most exciting problem in statistical learning you've ever worked on or are working on now?"
+        },
+        {
+            "episode_id": "STFcvzoxVw4",
+            "chunk_id": 26,
+            "question": "You know, you always have a feeling when you found something, how big is that?"
+        }
+    ]
+}

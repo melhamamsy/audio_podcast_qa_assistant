@@ -1,0 +1,29 @@
+{
+    "questions": [
+        {
+            "episode_id": "epQxfSp-rdU",
+            "chunk_id": 5,
+            "question": "That is, you can ask the question, is there any locomotion system that is as good as a human?"
+        },
+        {
+            "episode_id": "epQxfSp-rdU",
+            "chunk_id": 7,
+            "question": "So for example, diagnosing cancer or predicting the weather, why set humans as your benchmark?"
+        },
+        {
+            "episode_id": "epQxfSp-rdU",
+            "chunk_id": 9,
+            "question": "Now, you might say, well, what if we gave it the goal of maximizing its own power source?"
+        },
+        {
+            "episode_id": "epQxfSp-rdU",
+            "chunk_id": 14,
+            "question": "Now granted, you solve one problem and there's another one, namely how do we get these people a decent income?"
+        },
+        {
+            "episode_id": "epQxfSp-rdU",
+            "chunk_id": 18,
+            "question": "And can you relate to this sense of fun and do you understand the psychology of it?"
+        }
+    ]
+}

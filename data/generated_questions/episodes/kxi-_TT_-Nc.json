@@ -1,0 +1,104 @@
+{
+    "questions": [
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 10,
+            "question": "How important do you think is exploration or total out of the box thinking exploration in this space?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 10,
+            "question": "How important is it to explore totally outside of the strategies that have been working for you so far?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 16,
+            "question": "How do you make sense if you were to try to disentangle the Marv\u00e1 paradox?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 20,
+            "question": "If you agree, then maybe do you zoom in in some particular aspect of that problem that you just like?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 20,
+            "question": "But the source of newness and uncertainty, have you found problems in which it's easy to generate new newnessnessnesses?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 22,
+            "question": "So what are, just by the way in the grasping, what are the difficulties that have been worked on?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 22,
+            "question": "Why is it such a difficult, why is picking stuff up such a difficult problem?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 26,
+            "question": "You have some query like what action do I take in order for X to be true?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 32,
+            "question": "But what do you use the fundamental difference between reinforcement learning and maybe supervised machine learning?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 38,
+            "question": "Do we need to collect big benchmark data sets that allow us to explore the space?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 38,
+            "question": "Or maybe coming together in a space of robotics and defining the right problem to be working on?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 42,
+            "question": "And what is your sense of the limits of this representation power and the control context?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 48,
+            "question": "To throw a brief wrench into our discussion, let me ask, do you think we're living in a simulation?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 50,
+            "question": "Just as a quick aside, what are your thoughts about when the human enters the picture of the robotics problem?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 54,
+            "question": "You could say, can we write down kind of a general objective that leads to good capability?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 58,
+            "question": "What have you learned about yourself from trying to build robots and reinforcement learning systems?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 61,
+            "question": "When did you first yourself fall in love with the idea of artificial intelligence, get captivated by this field?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 63,
+            "question": "What are the first steps to take and further on what are the steps to take on that journey?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 63,
+            "question": "What do you think, ridiculous, big question, what do you think is the meaning of life?"
+        },
+        {
+            "episode_id": "kxi-_TT_-Nc",
+            "chunk_id": 64,
+            "question": "Now, of course, success is built on top of success and you keep going forever, but what is the dream?"
+        }
+    ]
+}

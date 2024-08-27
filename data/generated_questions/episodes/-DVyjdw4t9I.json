@@ -1,0 +1,59 @@
+{
+    "questions": [
+        {
+            "episode_id": "-DVyjdw4t9I",
+            "chunk_id": 15,
+            "question": "Do you think we'd be surprised by the number we see there for all these companies?"
+        },
+        {
+            "episode_id": "-DVyjdw4t9I",
+            "chunk_id": 25,
+            "question": "But then you have to just empirically look and step back and say, what language am I more productive in?"
+        },
+        {
+            "episode_id": "-DVyjdw4t9I",
+            "chunk_id": 29,
+            "question": "So how did you beyond hiring a great team or working with a great team make it faster?"
+        },
+        {
+            "episode_id": "-DVyjdw4t9I",
+            "chunk_id": 33,
+            "question": "What are the algorithmically tricky things that happen to be low hanging fruit that could be improved on?"
+        },
+        {
+            "episode_id": "-DVyjdw4t9I",
+            "chunk_id": 49,
+            "question": "Do you see if you would recommend somebody use a thing, would you recommend TypeScript or JavaScript?"
+        },
+        {
+            "episode_id": "-DVyjdw4t9I",
+            "chunk_id": 53,
+            "question": "Maybe it's a fast way for a new developer joining a team to learn the style rules, right?"
+        },
+        {
+            "episode_id": "-DVyjdw4t9I",
+            "chunk_id": 64,
+            "question": "Anyway, can we step back and can you just talk about parallelism, concurrency, threading, asynchronous, all of these different terms?"
+        },
+        {
+            "episode_id": "-DVyjdw4t9I",
+            "chunk_id": 82,
+            "question": "In your opinion, are there must-have PyPI libraries or ones you use all the time constantly?"
+        },
+        {
+            "episode_id": "-DVyjdw4t9I",
+            "chunk_id": 86,
+            "question": "Why start from scratch in Perl or JavaScript where there's not that infrastructure for arrays of numbers yet?"
+        },
+        {
+            "episode_id": "-DVyjdw4t9I",
+            "chunk_id": 90,
+            "question": "Do you have advice for a programming beginner on how to learn Python the right way?"
+        },
+        {
+            "episode_id": "-DVyjdw4t9I",
+            "chunk_id": 100,
+            "question": "What do you think is the future of Python in the next 10, 20, 50 years, a hundred years?"
+        }
+    ]
+}

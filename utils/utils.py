@@ -10,6 +10,7 @@ import glob
 import hashlib
 import json
 import os
+import pickle
 import re
 import time
 
@@ -31,7 +32,8 @@ def print_log(*message):
 
 def find_parameters(text):
     """
-    Find and return all parameters in curly braces within the text.
+    Find and return all parameters in curly braces within the text,
+        excluding those with single or double quotes.
 
     Args:
         text (str): The input text to search for parameters.
@@ -39,8 +41,10 @@ def find_parameters(text):
     Returns:
         list: A list of parameter names found in the text.
     """
-    pattern = r"\{(.*?)\}"
-    return re.findall(pattern, text)
+    # Match parameters inside curly braces excluding those with quotes
+    pattern = r"\{([^\"'{}]+)\}"
+    matches = re.findall(pattern, text)
+    return [match.strip() for match in matches]
 
 
 def is_sublist(main_list, sublist):
@@ -161,6 +165,25 @@ def generate_document_id(doc):
     return document_id
 
 
+def extract_item_by_keys(dict_list, **kwargs):
+    """
+    Extract first item occurence from a list of dictionaries 
+        where all key-value pairs match the specified conditions.
+
+    Args:
+        dict_list (list): A list of dictionaries to search.
+        **kwargs: Key-value pairs to match against each dictionary.
+
+    Returns:
+        dict or None: The dictionary that matches all conditions,
+            or None if not found.
+    """
+    for item in dict_list:
+        if all(item.get(key) == value for key, value in kwargs.items()):
+            return item
+    return None
+
+
 def id_documents(docs):
     """
     Assign unique IDs to a list of documents.
@@ -232,6 +255,35 @@ def parse_json_response(response):
         return json.loads(response)
     except ValueError:
         return json.loads(correct_json_string(response))
+
+
+def save_to_pickle(obj, pickle_file_path):
+    """
+    Save a Python object to a file using pickle.
+
+    Args:
+        obj (object): The Python object to be serialized and saved.
+        pickle_file_path (str): The file path where the pickled object will be saved.
+
+    Returns:
+        None
+    """
+    with open(pickle_file_path, 'wb') as pickle_file:
+        pickle.dump(obj, pickle_file)
+
+
+def load_pickle(pickle_file_path):
+    """
+    Load a pickled object from a file.
+
+    Args:
+        pickle_file_path (str): The file path from which the pickled object will be loaded.
+
+    Returns:
+        object: The Python object that was loaded from the pickle file.
+    """
+    with open(pickle_file_path, 'rb') as file:
+        return pickle.load(file)
 
 
 def sleep_seconds(total_wait_time, logging_interval=5):

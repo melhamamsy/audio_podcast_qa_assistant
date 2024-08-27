@@ -1,0 +1,49 @@
+{
+    "questions": [
+        {
+            "episode_id": "O9upVbGSBFo",
+            "chunk_id": 24,
+            "question": "So let me ask, do you think programming is more an art or a science?"
+        },
+        {
+            "episode_id": "O9upVbGSBFo",
+            "chunk_id": 28,
+            "question": "Is there other shell commands that you love over the years that you really enjoy using?"
+        },
+        {
+            "episode_id": "O9upVbGSBFo",
+            "chunk_id": 32,
+            "question": "So can you take on the impossible task and give a brief history of programming languages from your perspective?"
+        },
+        {
+            "episode_id": "O9upVbGSBFo",
+            "chunk_id": 44,
+            "question": "What do you think about this world of essentially building up libraries on top of each other and leveraging them?"
+        },
+        {
+            "episode_id": "O9upVbGSBFo",
+            "chunk_id": 48,
+            "question": "When I first came to it about 10 years ago or so, can you describe what is the Ample language?"
+        },
+        {
+            "episode_id": "O9upVbGSBFo",
+            "chunk_id": 59,
+            "question": "Are you excited by this future, this possibility of computing being everywhere or are you worried?"
+        },
+        {
+            "episode_id": "O9upVbGSBFo",
+            "chunk_id": 61,
+            "question": "Do you think there'll be a fundamental change in the way programming languages are designed?"
+        },
+        {
+            "episode_id": "O9upVbGSBFo",
+            "chunk_id": 63,
+            "question": "I think this is one of these questions of should everybody know how to program?"
+        },
+        {
+            "episode_id": "O9upVbGSBFo",
+            "chunk_id": 64,
+            "question": "So if you look at the broad strokes of history, how do you think the world changed because of computers?"
+        }
+    ]
+}

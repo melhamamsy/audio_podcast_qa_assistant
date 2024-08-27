@@ -46,24 +46,37 @@ def get_embedding(client, text, model_name="nomic-embed-text"):
     return client.embeddings.create(input=[text], model=model_name).data[0].embedding
 
 
-def embed_document(client, document, model_name="nomic-embed-text"):
+def embed_document(
+    client,
+    document,
+    keys=None,
+    vector_key="text_vector",
+    model_name="nomic-embed-text",
+):
     """
     Embed a document using a specified model.
 
     Args:
         client: The client instance to use for generating embeddings.
-        document (dict): A dictionary containing 'title' and 'text' fields.
+        document (dict): A dictionary containing fields specified in `keys`.
+        keys (list, optional): A list of keys in the document to concatenate for embedding.
+                               Default is ["title", "text", "question"] if not provided.
+        vector_key (str, optional): The key under which the embedding vector is stored.
+                                    Default is 'text_vector'.
         model_name (str, optional): The name of the model to use for embedding.
                                     Default is 'nomic-embed-text'.
 
     Returns:
         dict: The original document with an added embedding vector for the
-              combined 'title' and 'text' fields.
+              concatenated fields specified by `keys`.
     """
-    titled_text = document.get("title", "") + " " + document["text"]
+    if not keys:
+        keys = ["title", "text", "question"]
 
-    document["text_vector"] = get_embedding(
-        client=client, text=titled_text, model_name=model_name
+    text = "\n".join([document.get(key, "") for key in keys])
+
+    document[vector_key] = get_embedding(
+        client=client, text=text, model_name=model_name
     )
 
     return document

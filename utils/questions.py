@@ -4,15 +4,19 @@ questions and group them by episode. The main functionalities include:
     1. Extracting questions from episode segments based on specific criteria.
     2. Grouping extracted questions by episode for further processing or analysis.
     3. Rephrase questions using openai
+    4. Exclude corrupted questions from openai
+    5. Count '?' in a dataset (used to document narrowing-down approach)
 """
 
+import os
 import re
 from collections import defaultdict
 from json import JSONDecodeError
 
 from utils.query import build_prompt
-from utils.utils import parse_json_response
-from utils.variables import OPENAI_CLIENT
+from utils.utils import (
+    parse_json_response, extract_item_by_keys, save_json_file)
+from utils.variables import OPENAI_CLIENT, PROJECT_DIR
 
 
 def extract_questions(
@@ -101,9 +105,9 @@ def group_questions_by_episode(questions):
     return questions_per_episode
 
 
-def openai_rephrase(episode_questions, prompt_template_path, model="gpt-4o-mini"):
+def openai_process_questions(episode_questions, prompt_template_path, model="gpt-4o-mini"):
     """
-    Rephrase a set of questions using OpenAI.
+    Process a list of questions using OpenAI as per prompt.
 
     Args:
         episode_questions (list): A list of questions to rephrase.
@@ -114,6 +118,7 @@ def openai_rephrase(episode_questions, prompt_template_path, model="gpt-4o-mini"
         list: The rephrased questions.
     """
     prompt = build_prompt(prompt_template_path, episode_questions=episode_questions)
+    episode_id = episode_questions[0]["episode_id"]
     response = OPENAI_CLIENT.chat.completions.create(
         model=model,
         messages=[
@@ -125,9 +130,68 @@ def openai_rephrase(episode_questions, prompt_template_path, model="gpt-4o-mini"
     # Extract and print the response
     try:
         content = parse_json_response(response.choices[0].message.content)
+        save_json_file(
+            content,
+            os.path.join(
+                PROJECT_DIR,
+                'data/generated_questions/episodes',
+                episode_id + '.json',
+            ),
+            replace=True
+        )
+        return content
     except JSONDecodeError as e:
         print(e)
         print(response)
         print("\n===========================================\n")
 
-    return content
+    return []
+
+
+def filter_corrupted_qs(questions, original_data):
+    """
+    Filter out corrupted questions that do not meet the required criteria.
+
+    Args:
+        questions (list): A list of questions to filter.
+        original_data (list): A list of original data containing episode and chunk details.
+
+    Returns:
+        list: A list of intact questions that meet the criteria.
+    """
+    def is_valid_question(question):
+        return (
+            isinstance(question, dict) and
+            sorted(question.keys()) == ['chunk_id', 'episode_id', 'question']
+        )
+
+    def is_question_in_original_text(question, original_data):
+        original_chunk_text = extract_item_by_keys(
+            original_data,
+            id=question['episode_id'],
+            chunk_id=question['chunk_id'],
+        )["text"]
+
+        return question["question"].lower() in original_chunk_text.lower()
+
+    intact_questions = [
+        question for question in questions
+        if is_valid_question(question) and is_question_in_original_text(question, original_data)
+    ]
+
+    return intact_questions
+
+
+def count_question_marks(dataset):
+    """
+    Count the number of question marks in a list of text.
+
+    Args:
+        dataset (list[dict]): A list of dicts with text field.
+
+    Returns:
+        int: The total number of question marks in the list.
+    """
+    
+    text_list = [ep["text"] for ep in dataset]
+    return sum(text.count('?') for text in text_list)

@@ -1,0 +1,39 @@
+{
+    "questions": [
+        {
+            "episode_id": "7KTbEn7PiaY",
+            "chunk_id": 21,
+            "question": "Can you step back and define anthropomorphism, how you see it in general terms in your work?"
+        },
+        {
+            "episode_id": "7KTbEn7PiaY",
+            "chunk_id": 32,
+            "question": "Do you think it's possible to have a long-term committed monogamous relationship with a robot?"
+        },
+        {
+            "episode_id": "7KTbEn7PiaY",
+            "chunk_id": 34,
+            "question": "So what do you think it takes to build a system that exhibits greater and greater levels of intelligence?"
+        },
+        {
+            "episode_id": "7KTbEn7PiaY",
+            "chunk_id": 36,
+            "question": "So yeah, so how hard is it to pass a Turing test, in your view?"
+        },
+        {
+            "episode_id": "7KTbEn7PiaY",
+            "chunk_id": 41,
+            "question": "Like, should we emotionally manipulate you into having a deep connection with Alexa or not?"
+        },
+        {
+            "episode_id": "7KTbEn7PiaY",
+            "chunk_id": 43,
+            "question": "What are your thoughts in general on intellectual property in this weird age of software, AI, robotics?"
+        },
+        {
+            "episode_id": "7KTbEn7PiaY",
+            "chunk_id": 47,
+            "question": "So, what do you see as the future of personal robotics, social robotics, interaction with other robots?"
+        }
+    ]
+}

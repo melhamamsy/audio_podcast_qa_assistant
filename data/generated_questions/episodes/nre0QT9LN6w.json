@@ -1,0 +1,59 @@
+{
+    "questions": [
+        {
+            "episode_id": "nre0QT9LN6w",
+            "chunk_id": 1,
+            "question": "What is the most amazing or beautiful robot that you've ever had the chance to work with?"
+        },
+        {
+            "episode_id": "nre0QT9LN6w",
+            "chunk_id": 36,
+            "question": "What are your thoughts about Tesla autopilot or more generally vision-based machine learning approach to semi-autonomous driving?"
+        },
+        {
+            "episode_id": "nre0QT9LN6w",
+            "chunk_id": 41,
+            "question": "When is the first fully autonomous train system for mass transit expected to operate fully autonomously?"
+        },
+        {
+            "episode_id": "nre0QT9LN6w",
+            "chunk_id": 41,
+            "question": "What do you see when you go to a fully autonomous train in an airport?"
+        },
+        {
+            "episode_id": "nre0QT9LN6w",
+            "chunk_id": 54,
+            "question": "Are you thinking 10 years from now, 20 years from now, 30 years from now?"
+        },
+        {
+            "episode_id": "nre0QT9LN6w",
+            "chunk_id": 58,
+            "question": "What are you most proud of with that company and the approach you took to robotics?"
+        },
+        {
+            "episode_id": "nre0QT9LN6w",
+            "chunk_id": 64,
+            "question": "Do you think this is almost like what it takes to build a successful robotics company?"
+        },
+        {
+            "episode_id": "nre0QT9LN6w",
+            "chunk_id": 64,
+            "question": "Do you think it's possible to go from the ground up or is it just too much capital investment?"
+        },
+        {
+            "episode_id": "nre0QT9LN6w",
+            "chunk_id": 68,
+            "question": "So can you clarify, force control is you can grab the arm and you can move it?"
+        },
+        {
+            "episode_id": "nre0QT9LN6w",
+            "chunk_id": 70,
+            "question": "Does it hurt to think about an amazing company that didn't, like iRobot, didn't find a way?"
+        },
+        {
+            "episode_id": "nre0QT9LN6w",
+            "chunk_id": 84,
+            "question": "Why you ever look up to the stars and ask, why the hell are we here?"
+        }
+    ]
+}

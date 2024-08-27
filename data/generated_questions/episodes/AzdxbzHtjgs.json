@@ -1,0 +1,24 @@
+{
+    "questions": [
+        {
+            "episode_id": "AzdxbzHtjgs",
+            "chunk_id": 2,
+            "question": "So what books, non-technical, non-computer science, would you say had the biggest impact on your life, either intellectually or emotionally?"
+        },
+        {
+            "episode_id": "AzdxbzHtjgs",
+            "chunk_id": 54,
+            "question": "First, can you say what is game theory and how does it help us model and study?"
+        },
+        {
+            "episode_id": "AzdxbzHtjgs",
+            "chunk_id": 56,
+            "question": "So what to you is the most beautiful idea that you've encountered in game theory?"
+        },
+        {
+            "episode_id": "AzdxbzHtjgs",
+            "chunk_id": 65,
+            "question": "Can you look back, you remember just being profoundly transformed in some way or blissful?"
+        }
+    ]
+}

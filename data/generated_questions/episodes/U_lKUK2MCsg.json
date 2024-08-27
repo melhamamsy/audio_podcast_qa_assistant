@@ -1,0 +1,29 @@
+{
+    "questions": [
+        {
+            "episode_id": "U_lKUK2MCsg",
+            "chunk_id": 1,
+            "question": "If there's intelligent life out there in the universe, do you think their mathematics is different than ours?"
+        },
+        {
+            "episode_id": "U_lKUK2MCsg",
+            "chunk_id": 3,
+            "question": "Do you have a favorite or least favorite piece of notation in terms of its effectiveness?"
+        },
+        {
+            "episode_id": "U_lKUK2MCsg",
+            "chunk_id": 17,
+            "question": "When you start to think about artificial intelligence, how far can we get with computers?"
+        },
+        {
+            "episode_id": "U_lKUK2MCsg",
+            "chunk_id": 20,
+            "question": "What if instead of calling these abstract, how different would it be in your mind if we called them general?"
+        },
+        {
+            "episode_id": "U_lKUK2MCsg",
+            "chunk_id": 39,
+            "question": "What is the best way to learn math for people who might be at the beginning of that journey?"
+        }
+    ]
+}

@@ -1,0 +1,49 @@
+{
+    "questions": [
+        {
+            "episode_id": "aSyZvBrPAyk",
+            "chunk_id": 19,
+            "question": "How hard of a problem it is to optimize a neural network, artificial neural network?"
+        },
+        {
+            "episode_id": "aSyZvBrPAyk",
+            "chunk_id": 24,
+            "question": "What are your thoughts, hopes, views on the challenges of unsupervised learning with GANs, with Generative Adversarial Networks?"
+        },
+        {
+            "episode_id": "aSyZvBrPAyk",
+            "chunk_id": 26,
+            "question": "What's your intuition, how can we slow the growth of N to infinity in supervised learning?"
+        },
+        {
+            "episode_id": "aSyZvBrPAyk",
+            "chunk_id": 28,
+            "question": "What's the gap between being effectively effective at visually recognizing stuff, detecting where it is and understanding the scene?"
+        },
+        {
+            "episode_id": "aSyZvBrPAyk",
+            "chunk_id": 30,
+            "question": "Do you think it will be the underlying design of such a system is something we'll be able to understand?"
+        },
+        {
+            "episode_id": "aSyZvBrPAyk",
+            "chunk_id": 32,
+            "question": "And how hard do you think is the problem of, first of all, humans understanding ethics?"
+        },
+        {
+            "episode_id": "aSyZvBrPAyk",
+            "chunk_id": 33,
+            "question": "Do you think it's important to illuminate aspects of consciousness in order to engineer intelligence systems?"
+        },
+        {
+            "episode_id": "aSyZvBrPAyk",
+            "chunk_id": 36,
+            "question": "Whether you're talking to somebody in their teens, 20s, and 30s, what does that path look like?"
+        },
+        {
+            "episode_id": "aSyZvBrPAyk",
+            "chunk_id": 38,
+            "question": "As one of the smartest people in the world, in some dimension, at the very least, what do you think?"
+        }
+    ]
+}

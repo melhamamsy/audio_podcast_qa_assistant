@@ -1,0 +1,49 @@
+{
+    "type_2_questions": [
+        {
+            "episode_id": "KllCrlfLuzs",
+            "chunk_id": 8,
+            "question": "Like, what is it that attracts us to the beauty of mathematics, do you think?"
+        },
+        {
+            "episode_id": "KllCrlfLuzs",
+            "chunk_id": 15,
+            "question": "What are combinatorial algorithms and what are some major examples of problems they aim to solve?"
+        },
+        {
+            "episode_id": "KllCrlfLuzs",
+            "chunk_id": 17,
+            "question": "But for people who might not know, but in general how you think about it, what is a graph?"
+        },
+        {
+            "episode_id": "KllCrlfLuzs",
+            "chunk_id": 25,
+            "question": "Do you think P equals NP or do you think P is not equal to NP?"
+        },
+        {
+            "episode_id": "KllCrlfLuzs",
+            "chunk_id": 35,
+            "question": "Do you think there's concepts that are totally outside of the box that we haven't considered yet?"
+        },
+        {
+            "episode_id": "KllCrlfLuzs",
+            "chunk_id": 38,
+            "question": "Why is it a problem for the husband and wife to be assigned to the same hospital?"
+        },
+        {
+            "episode_id": "KllCrlfLuzs",
+            "chunk_id": 42,
+            "question": "So can you maybe take a step back and say, like, what is a randomized algorithm, this category of algorithms?"
+        },
+        {
+            "episode_id": "KllCrlfLuzs",
+            "chunk_id": 58,
+            "question": "Is there some aspect of that that's a computer science problem or is that still fundamentally a biology problem?"
+        },
+        {
+            "episode_id": "KllCrlfLuzs",
+            "chunk_id": 60,
+            "question": "Is there advice you can give out for others on how to be a good teacher?"
+        }
+    ]
+}
