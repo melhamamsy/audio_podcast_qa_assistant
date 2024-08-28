@@ -1,5 +1,4 @@
-/mnt/workspace/__ing/llming/DTC/audio_podcast_qa_assistant/data/generated_documents/documents.json filter=lfs diff=lfs merge=lfs -text
-/mnt/workspace/__ing/llming/DTC/audio_podcast_qa_assistant/data/generated_questions/*.json filter=lfs diff=lfs merge=lfs -text
+*.json filter=lfs diff=lfs merge=lfs -text
 *.pkl filter=lfs diff=lfs merge=lfs -text
 /mnt/workspace/__ing/llming/DTC/audio_podcast_qa_assistant/bucket/351/episode-mini.mp3 filter=lfs diff=lfs merge=lfs -text
 /mnt/workspace/__ing/llming/DTC/audio_podcast_qa_assistant/bucket/367/episode-mini.mp3 filter=lfs diff=lfs merge=lfs -text
