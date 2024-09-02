@@ -34,17 +34,33 @@ docker-compose exec -e CHAT_MODEL="$CHAT_MODEL" -e EMBED_MODEL="$EMBED_MODEL" ol
   MANIFESTS_DIR="$HOME/.ollama/models/manifests/registry.ollama.ai"
   BLOBS_DIR="$HOME/.ollama/models/blobs"
 
+  # Function to get the model version
+  get_model_version() {
+    local model_name="$1"
+    if [[ "$model_name" == *:* ]]; then
+      echo "${model_name#*:}"
+    else
+      echo "latest"
+    fi
+  }
+  
+  # Determine the correct manifest paths based on the format of CHAT_MODEL and EMBED_MODEL
+  chat_model_version=$(get_model_version "$CHAT_MODEL")
+  embed_model_version=$(get_model_version "$EMBED_MODEL")
+  chat_model_base="${CHAT_MODEL%%:*}"
+  embed_model_base="${EMBED_MODEL%%:*}"
+
   # Determine the correct manifest paths based on the format of CHAT_MODEL and EMBED_MODEL
   if [[ "$CHAT_MODEL" == */* ]]; then
-    chat_model_path="$MANIFESTS_DIR/$CHAT_MODEL/latest"
+    chat_model_path="$MANIFESTS_DIR/$chat_model_base/$chat_model_version"
   else
-    chat_model_path="$MANIFESTS_DIR/library/$CHAT_MODEL/latest"
+    chat_model_path="$MANIFESTS_DIR/library/$chat_model_base/$chat_model_version"
   fi
 
   if [[ "$EMBED_MODEL" == */* ]]; then
-    embed_model_path="$MANIFESTS_DIR/$EMBED_MODEL/latest"
+    embed_model_path="$MANIFESTS_DIR/$embed_model_base/$embed_model_version"
   else
-    embed_model_path="$MANIFESTS_DIR/library/$EMBED_MODEL/latest"
+    embed_model_path="$MANIFESTS_DIR/library/$embed_model_base/$embed_model_version"
   fi
 
   manifest_paths=(
@@ -104,12 +120,12 @@ docker-compose exec -e CHAT_MODEL="$CHAT_MODEL" -e EMBED_MODEL="$EMBED_MODEL" ol
           echo -e "${GREEN}Model Is ALready Pulled...${NC}"
       else
         echo Model Is Not Pulled Or Missing Digests...
-        if is_substring "$EMBED_MODEL" "$manifest_path"; then
+        if is_substring "$embed_model_path" "$manifest_path"; then
             echoo "Pulling ${EMBED_MODEL}..."
             ollama pull ${EMBED_MODEL}
             echo -e "${GREEN}Done.${NC}"
         fi 
-        if is_substring "$CHAT_MODEL" "$manifest_path"; then
+        if is_substring "$chat_model_path" "$manifest_path"; then
             echoo "Pulling ${CHAT_MODEL}..."
             ollama pull ${CHAT_MODEL}
             echo -e "${GREEN}Done.${NC}"

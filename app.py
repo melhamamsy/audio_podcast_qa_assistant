@@ -59,7 +59,12 @@ def handle_user_input():
     print_log(f"User title input question: {user_input}")
     model_choice = st.selectbox(
         "Select a model:",
-        ["ollama/phi3", "openai/gpt-3.5-turbo", "openai/gpt-4o", "openai/gpt-4o-mini"],
+        [
+            "ollama/gemma:2b",
+            "openai/gpt-3.5-turbo",
+            "openai/gpt-4o",
+            "openai/gpt-4o-mini",
+        ],
     )
     print_log(f"User selected model: {model_choice}")
     search_type = st.radio("Select search type:", ["Text", "Vector", "Hybrid"])

@@ -305,14 +305,14 @@ def elastic_search_hybrid_rrf(
     return final_results
 
 
-def llm(prompt, model_choice="ollama/phi3"):
+def llm(prompt, model_choice="ollama/gemma:2b"):
     """
     Generate a response using a language model.
 
     Args:
         prompt (str): The prompt to be passed to the language model.
         model_choice (str, optional): The model to use for generating the response.
-                                      Defaults to "ollama/phi3".
+                                      Defaults to "ollama/gemma:2b".
 
     Returns:
         tuple: The generated answer (str), token usage (dict), and response time (float).
@@ -511,7 +511,7 @@ def get_answer(query, title_query, model_choice, search_type):
         query (str): The main question or query.
         title_query (str): An optional title filter to narrow the search.
         model_choice (str): The model to use for generating the answer.
-        search_type (str): The type of search to perform ("Text" or "Vector").
+        search_type (str): The type of search to perform ("Text", "Vector", or "Hybrid").
 
     Returns:
         dict: The generated answer and related metadata.
@@ -522,7 +522,7 @@ def get_answer(query, title_query, model_choice, search_type):
     context = build_context(search_results)
     answer, tokens, response_time = generate_answer(query, context, model_choice)
 
-    eval_model = os.getenv("EVAL_MODEL", "ollama/phi3")
+    eval_model = os.getenv("EVAL_MODEL", "ollama/gemma:2b")
     evaluation = evaluate_answer(query, answer, eval_model)
 
     openai_cost = calculate_openai_cost(model_choice, tokens) + calculate_openai_cost(

@@ -18,7 +18,7 @@ The Lex Fridman Podcast features in-depth conversations covering a broad range o
 
 We begin by using the `openai/whisper-small` ASR model to transcribe podcast episodes into text. The transcriptions are then intelligently chunked while preserving context, ensuring meaningful segments. Next, the chunks are vectorized using `nomic-embed-text` for semantic understanding and stored in Elasticsearch, which serves as the knowledge base for the RAG system.
 
-The RAG system relies on either a self-hosted `phi3` chat model or OpenAI-hosted models like `gpt-4` to generate contextually relevant answers based on user queries. This setup makes it easier to explore and extract insights from the vast content of Lex Fridman's podcast episodes.
+The RAG system relies on either a self-hosted `gemma:2b` chat model or OpenAI-hosted models like `gpt-4` to generate contextually relevant answers based on user queries. This setup makes it easier to explore and extract insights from the vast content of Lex Fridman's podcast episodes.
 
 
 ## System Requirements
@@ -81,7 +81,7 @@ Before getting started, ensure that the following dependencies are met:
     OLLAMA_SETUP_HOST=localhost # Host of ollama with respect to local env
     OLLAMA_HOST=ollama # Host of ollama with respect to streamlit
     OLLAMA_PORT=11434
-    CHAT_MODEL=phi3 # Chat model to recieve prompt and give back a response, hosted in ollama
+    CHAT_MODEL=gemma:2b # Chat model to recieve prompt and give back a response, hosted in ollama
     EMBED_MODEL=nomic-embed-text # Sentence-embedding model, hosted in ollama (768 dims)
 
     # Streamlit Configuration
@@ -105,7 +105,7 @@ Before getting started, ensure that the following dependencies are met:
     NEW_AUDIOS_NAME=episode-mini # bucket/[ep-no]/{NEW_AUDIOS_NAME}.mp3
 
     # Evaluation Model
-    EVAL_MODEL=openai/gpt-4o-mini # llm-as-a-judge model, alternatives: (ollama/phi3, openai/gpt-4o, ...)
+    EVAL_MODEL=openai/gpt-4o-mini # llm-as-a-judge model, alternatives: (ollama/gemma:2b, openai/gpt-4o, ...)
 
     # Huggingface
     HF_READING_TOKEN= # your_hf_token, e.g., hf_[34 characters]
