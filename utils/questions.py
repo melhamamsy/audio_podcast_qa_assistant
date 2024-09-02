@@ -8,14 +8,13 @@ questions and group them by episode. The main functionalities include:
     5. Count '?' in a dataset (used to document narrowing-down approach)
 """
 
-import os
 import re
 from collections import defaultdict
 from json import JSONDecodeError
 
 from utils.query import build_prompt
-from utils.utils import extract_item_by_keys, parse_json_response, save_json_file
-from utils.variables import OPENAI_CLIENT, PROJECT_DIR
+from utils.utils import extract_item_by_keys, parse_json_response
+from utils.variables import OPENAI_CLIENT
 
 
 def extract_questions(
@@ -104,9 +103,7 @@ def group_questions_by_episode(questions):
     return questions_per_episode
 
 
-def openai_process_questions(
-    episode_questions, prompt_template_path, model="gpt-4o-mini"
-):
+def openai_process_questions(prompt_template_path, model="gpt-4o-mini", **kwargs):
     """
     Process a list of questions using OpenAI as per prompt.
 
@@ -118,8 +115,7 @@ def openai_process_questions(
     Returns:
         list: The rephrased questions.
     """
-    prompt = build_prompt(prompt_template_path, episode_questions=episode_questions)
-    episode_id = episode_questions[0]["episode_id"]
+    prompt = build_prompt(prompt_template_path, **kwargs)
     response = OPENAI_CLIENT.chat.completions.create(
         model=model,
         messages=[
@@ -130,17 +126,7 @@ def openai_process_questions(
 
     # Extract and print the response
     try:
-        content = parse_json_response(response.choices[0].message.content)
-        save_json_file(
-            content,
-            os.path.join(
-                PROJECT_DIR,
-                "data/generated_questions/episodes",
-                episode_id + ".json",
-            ),
-            replace=True,
-        )
-        return content
+        return parse_json_response(response.choices[0].message.content)
     except JSONDecodeError as e:
         print(e)
         print(response)

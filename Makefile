@@ -5,7 +5,7 @@ include .env
 export $(shell sed 's/=.*//' .env)
 
 # Define variables
-PY_FILES = $(shell find . -name "*.py")
+PY_FILES = $(shell find . -name "*.py" -not -path "./hf_cache/*")
 
 REINDEX_ES_DEFAULT=false
 REINIT_DB_DEFAULT=false

@@ -8,7 +8,7 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
     volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
+      - ./elasticsearch_data:/usr/share/elasticsearch/data
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -124,4 +124,3 @@ volumes:
   ollama_data:
   postgres_data:
   grafana_data:
-  elasticsearch_data:

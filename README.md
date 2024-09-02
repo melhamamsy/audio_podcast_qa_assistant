@@ -155,7 +155,7 @@ Before getting started, ensure that the following dependencies are met:
 
 9. Cache the Hugging Face podcast dataset to `hf_cache`. <span style="color:orange;">**Warning:**</span> This process is very costly in terms of time and resources, and you may need to spread the download over a few days due to potential download limits. However, this step can be skipped altogether since Defacto Mode is enabled by default. I have already gone through the process and stored the transcribed, chunked, and vectorized data:
 
-    - `data/generated_document_embeddings/vectorized_documents.pkl` (Text+Vectors)
+    - `data/generated_embeddings/vectorized_documents.pkl` (Text+Vectors)
     - `data/generated_documents/documents.json` (Text only)
 
     You can use these files directly without needing to download the dataset.
@@ -202,7 +202,7 @@ The dataset is available as a [Hugging Face dataset](https://huggingface.co/data
 However, if needed, we can still [download the episodes](https://lexfridman.com/podcast/) individually and transcribe them manually. I call this process of skipping heavy processing **Defacto Mode**, which is applied in the code. You can disable this mode by setting `defacto=False` during the setup process (details covered later).
 
 The transcribed, chunked, and vectorized data is stored in:
-- `data/generated_document_embeddings/vectorized_documents.pkl`
+- `data/generated_embeddings/vectorized_documents.pkl`
 
 The same data without vectorization is stored in:
 - `data/generated_documents/documents.json`

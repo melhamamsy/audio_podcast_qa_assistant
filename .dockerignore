@@ -6,6 +6,7 @@ data/
 git-hooks/
 hf_cache/
 notebooks/
+elasticsearch_data/
 README.md
 requirements.txt
 requirements-dev.txt

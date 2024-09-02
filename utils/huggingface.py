@@ -1,84 +1,64 @@
 """
-This module provides utility functions for Huggingface.
-The utility functions are used to:
-    1. Setup cache directories
-    2. Vectorize Sentences
-    3. ...
+This module provides utility functions for working with Hugging Face models, 
+including functions to vectorize text and documents, normalize vectors to unit 
+length, and embed documents by concatenating specified fields.
 """
 
-import os
-
-from tqdm.auto import tqdm
+import numpy as np
 
 
-def setup_hf_cache_dir(path):
+def vectorize_text(model, text, precision=10):
     """
-    Set the HuggingFace cache directory.
+    Vectorize a given text using a specified model and normalize
+    the resulting vector to unit length.
 
     Args:
-        path (str): The path to set as the HuggingFace
-        cache directory.
-    """
-    os.environ["HF_HOME"] = path
-    print(
-        f"""HuggingFace cache directory
-($HF_HOME) has been set to: {path}
-"""
-    )
-
-
-def setup_transformers_cache_dir(path):
-    """
-    Set the HuggingFace transformers cache directory.
-
-    Args:
-        path (str): The path to set as the HuggingFace
-        transformers cache directory.
-    """
-    os.environ["TRANSFORMERS_CACHE"] = path
-    print(
-        f"""HuggingFace transformers cache directory 
-($TRANSFORMERS_CACHE) has been set to: {path}
-"""
-    )
-
-
-def setup_sentence_transformers_cache_dir(path):
-    """
-    Set the HuggingFace sentence transformers cache directory.
-
-    Args:
-        path (str): The path to set as the HuggingFace
-        sentence transformers cache directory.
-    """
-    os.environ["SENTENCE_TRANSFORMERS_HOME"] = path
-    print(
-        f"""HuggingFace sentenct transformers cache directory
-($SENTENCE_TRANSFORMERS_HOME) has been set to: {path}
-"""
-    )
-
-
-def vectorize_sentences(model, documents, field="text"):
-    """
-    Vectorize sentences in documents using a specified model.
-
-    Args:
-        model: The model to use for encoding sentences.
-        documents (list): A list of documents where each
-        document is a dictionary containing the field to
-        be vectorized.
-        field (str, optional): The field in the document
-        to be vectorized. Default is 'text'.
+        model: The model to use for encoding the text,
+               typically a sentence or document embedding model.
+        text (str): The text to be vectorized.
+        precision (int): The number of decimal places to which the vector
+                         components should be rounded. Default is 10.
 
     Returns:
-        list: A list of documents with the vectorized field
-        added.
+        list: A list representing the normalized vector (unit length) of the
+              encoded text, rounded to the specified precision.
     """
-    vectorized_documents = []
-    for doc in tqdm(documents):
-        # Transforming the title into an embedding using the model
-        doc[f"{field}_vector"] = model.encode(doc[field]).tolist()
-        vectorized_documents.append(doc)
+    vec = model.encode(text)
+    vec = vec / np.linalg.norm(vec).tolist()
 
-    return vectorized_documents
+    return [round(d, precision) for d in vec]
+
+
+def vectorize_document(
+    model,
+    document,
+    keys=None,
+    vector_key="text_vector",
+    precision=10,
+):
+    """
+    Embed a document by concatenating specified fields and vectorizing
+    the resulting text using a specified model.
+
+    Args:
+        model: The model to use for generating embeddings.
+        document (dict): A dictionary containing fields specified in `keys`.
+        keys (list, optional): A list of keys in the document to concatenate
+                               for embedding. Default is ["title", "text", "question"].
+        vector_key (str, optional): The key under which the embedding vector
+                                    is stored. Default is 'text_vector'.
+        precision (int, optional): The number of decimal places to which the
+                                   vector components should be rounded. Default is 10.
+
+    Returns:
+        dict: The original document with an added embedding vector for the
+              concatenated fields specified by `keys`.
+    """
+    if not keys:
+        keys = ["title", "text", "question"]
+
+    text = "\n".join([document.get(key, "") for key in keys])
+
+    document[vector_key] = vectorize_text(model=model, text=text, precision=precision)
+
+    return document

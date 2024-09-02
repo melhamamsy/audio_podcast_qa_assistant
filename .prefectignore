@@ -5,6 +5,7 @@ bucket/
 notebooks/
 git-hooks/
 tests/
+elasticsearch_data/
 README.md
 requirements.txt
 requirements-dev.txt

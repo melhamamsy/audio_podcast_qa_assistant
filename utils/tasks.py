@@ -247,7 +247,7 @@ def chunk_episodes(
     if defacto:
         print_log("chunk_episodes: Defacto mode is on ...")
         path = os.path.join(
-            PROJECT_DIR, "data/generated_document_embeddings/vectorized_documents.pkl"
+            PROJECT_DIR, "data/generated_embeddings/vectorized_documents.pkl"
         )
         with open(path, "rb") as file:
             documents = pickle.load(file)
@@ -271,7 +271,7 @@ def chunk_episodes(
             max_chunk_size=max_chunk_size,
         ),
         seq=Dataset.from_list(dataset),
-        max_workers=1,
+        max_workers=4,
     )
     documents = [item for sublist in documents for item in sublist]
 
@@ -336,7 +336,7 @@ def index_documents_es(
                     ollama_client, document, embed_model_name
                 ),
                 seq=documents,
-                max_workers=2,
+                max_workers=4,
             )
         else:
             vectorized_documents = documents
@@ -349,7 +349,7 @@ def index_documents_es(
                 es_client, index_name, document, timeout=60
             ),
             seq=vectorized_documents,
-            max_workers=2,
+            max_workers=4,
         )
         print("Documents indexing done.")
 

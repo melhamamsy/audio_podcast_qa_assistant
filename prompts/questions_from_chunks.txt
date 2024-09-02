@@ -1,0 +1,11 @@
+I have a list of text chunks extracted from various episodes of a podcast. 
+Each chunk is associated with an `episode_id`, `chunk_id`, and contains the episode title as the first line. 
+Your task is to generate 0-1 question per chunk that is both meaningful and can be answered solely based on the information within the chunk. 
+If no strong question can be generated, skip it entirely. 
+
+Please return the results in a JSON format, with each question represented as a dictionary containing `episode_id`, `chunk_id`, and `question` keys.
+
+IMPORTANT: Only return the dictionary without the fenced code block marks. Make sure to return double quotations, not single quotations.
+
+Here are the chunks:
+{chunks}

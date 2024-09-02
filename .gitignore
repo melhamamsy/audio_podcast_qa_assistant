@@ -4,5 +4,6 @@ __pycache__/
 .prefect/
 hf_cache/
 .vscode/
+elasticsearch_data/
 episode.mp3
 .env

@@ -1,6 +1,7 @@
 accelerate==0.33.0
 bitsandbytes==0.43.1
 datasets==2.20.0
+einops==0.8.0
 elasticsearch==8.14.0
 importlib_metadata==8.2.0
 ipykernel==6.29.5
