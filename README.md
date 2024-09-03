@@ -44,7 +44,8 @@ Before getting started, ensure that the following dependencies are met:
     ```bash
     sudo apt-get update
     sudo apt-get install build-essential
-    sudo apt-get install ffmpeg # Needed for reading mp3 files
+    sudo apt-get install ffmpeg # For reading mp3 files
+    # git config core.hooksPath git-hooks # Change default git-hooks dir
     ```
 
 3. Create a directory named `hf_cache/` in the project root:
@@ -168,7 +169,7 @@ Before getting started, ensure that the following dependencies are met:
 
 10. Prefect Setup (More details will follow regarding its role and how it works).
 
-    a. Update Prefect profiles in `~/.prefect/profiles.toml` with the following configuration:
+    a. Update Prefect profiles in `~/.prefect/profiles.toml` with the following command:
 
     ```bash
     echo 'active = "local-server"
@@ -211,7 +212,11 @@ To test the pipeline, two additional episodes not included in the dataset were d
 1. [MrBeast: Future of YouTube, Twitter, TikTok, and Instagram | Lex Fridman Podcast #351](https://lexfridman.com/mrbeast)
 2. [Sam Altman: OpenAI CEO on GPT-4, ChatGPT, and the Future of AI | Lex Fridman Podcast #367](https://lexfridman.com/sam-altman)
 
-A 1-minute segment was extracted from each episode and saved as `episode-mini.mp3`. Metadata was also created for each episode, and they were placed in the `bucket/` directory in subdirectories named after the episode number (e.g., `351` or `367`).
+A 1-minute segment was extracted from each episode and saved as `episode-mini.mp3`. 
+
+```> ffmpeg -ss 00:06:55 -i episode.mp3 -t 60 -c copy episode-mini.mp3```
+
+Metadata was also created for each episode, and they were placed in the `bucket/` directory in subdirectories named after the episode number (e.g., `351` or `367`).
 
 For these episodes, you can run the setup pipeline with Defacto Mode off, which takes around 5 minutes for the two mini episodes. The resulting transcripts are saved in `data/generated_transcriptions/` as JSON files with metadata (e.g., `MrBeast: Future of YouTube, Twitter, TikTok, and Instagram.json`) to prevent reprocessing if the pipeline fails before indexing.
 
@@ -230,17 +235,37 @@ When a new directory is added to the bucket (e.g., 351) and the setup pipeline i
 ```
 To avoid reindexing, if you manually remove a directory from tracked_directories, the pipeline will re-run, delete the indexed documents for that episode, and index the new documents (essentially updating the data).
 
+## Prefect (Orchestration)
+This project uses Prefect to orchestrate, deploy, run, and monitor workflows effectively. Prefect serves as a critical component in managing both ad-hoc tasks and scheduled workflows, ensuring seamless execution and observability.
+
+**Key Features:**
+
+`Deployment`: Workflows are deployed and managed locally using Prefect, allowing for streamlined and efficient task execution.
+
+`Execution`: Tasks can be run on-demand (ad-hoc) or scheduled to run at specific times, providing flexibility in operation.
+
+`Monitoring`: Prefect provides real-time monitoring of workflows, making it easier to track progress, handle retries, and manage any failures.
+
+`Process Work Pool`: Given that this project is orchestrated on a local PC, a Process Work Pool is utilized. This allows for executing tasks in separate processes, providing better resource management and isolation on local environments.
+
+By leveraging Prefect's capabilities, the project ensures that workflows are managed with the robustness and reliability needed for complex operations, even within a local setup. Below is a simple diagram that depicts the idea.
+
+![alt text](diagrams/Prefect.png)
+
+Prefect requires a database to store its metadata, for this we will leverage already created postgres instance. This was done already in _Environment Setup and Configuration (10)_.
+
+To start prefect server and a prefect worker:
+```
+> make prefect_start_server
+> make prefect_start_worker # you can start multiple ones by rerunning command, but this is not required.
+```
+
+Go to: http://127.0.0.1:4200 to inspect UI (You should see one workpool, but no deployments nor runs yet).
 
 ## DO NOT FORGET TO
 ```
-docker-compose down
+> make prefect_kill_workers # Kill all running workers
+> make prefect_stop_server # Stop prefect server
+> docker-compose down # Stop & Remove all running containers
+> #make remove_local_env # In case you want to remove local env and kernel.
 ```
-
-## Formatting
-```
-pylint $(find . -name "*.py")
-git config core.hooksPath git-hooks
-```
-
-## episode-mini.mp3
-```ffmpeg -ss 00:01:30 -i input.mp3 -t 60 -c copy output.mp3```
