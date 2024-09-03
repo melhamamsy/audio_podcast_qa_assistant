@@ -37,3 +37,7 @@ class WrongCliParams(Exception):
 
 class SetupWrongParam(Exception):
     """Ensure correct env variables passed to the .env file."""
+
+
+class UnknownQueryRewritingTechnique(Exception):
+    """Ensures that the passed query-writing technique is valid"""

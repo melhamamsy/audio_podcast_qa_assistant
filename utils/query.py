@@ -305,6 +305,58 @@ def elastic_search_hybrid_rrf(
     return final_results
 
 
+def elastic_search_hybrid_rrf_qr(
+    query, query_rewriting_results, k=60, title_query=None, vector_boost=None
+):
+    """
+    Performs a hybrid search using the original query and rewritten results,
+    applying Reciprocal Rank Fusion (RRF) to rank and merge the results.
+
+    The function takes the original query and its rewritten variations,
+    conducts a hybrid search for each, and then applies RRF to combine and
+    rank the results. The top `k` results based on the RRF score are returned.
+
+    Parameters:
+    -----------
+    query : str
+        The original query string.
+    query_rewriting_results : list of str
+        A list of rewritten queries derived from the original query.
+    k : int, optional
+        The number of top results to return after applying RRF, default is 60.
+    title_query : str, optional
+        An additional query parameter for title-based search, default is None.
+    vector_boost : float, optional
+        A boost value for vector-based search results, default is None.
+
+    Returns:
+    --------
+    list of dict
+        A list of the top `k` search results, each containing the RRF score.
+    """
+    results = [
+        elastic_search_hybrid_rrf(
+            query=query,
+            query_vector=get_embedding(OLLAMA_CLIENT, query),
+            k=k,
+            title_query=title_query,
+            vector_boost=vector_boost,
+        )
+        for query in query_rewriting_results + [query]
+    ]
+    flattened_results = flatten_list_of_lists(results)
+    result_ids = [doc["_id"] for doc in flattened_results]
+    rrf_results = compute_documents_rrf(k, *results)
+
+    final_results = []
+    for doc_id, rrf_score in rrf_results[:5]:
+        doc = flattened_results[result_ids.index(doc_id)]
+        doc["rrf_score"] = rrf_score
+        final_results.append(doc)
+
+    return final_results
+
+
 def llm(prompt, model_choice="ollama/gemma:2b"):
     """
     Generate a response using a language model.

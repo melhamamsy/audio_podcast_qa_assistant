@@ -5,6 +5,7 @@ variable initialization, JSON document loading, duplicate
 finding, document ID generation, and JSON response parsing.
 """
 
+import ast
 import base64
 import glob
 import hashlib
@@ -257,6 +258,27 @@ def parse_json_response(response):
         return json.loads(correct_json_string(response))
 
 
+def parse_list_response(response):
+    """
+    Converts a string representation of a list into a Python list.
+
+    Parameters:
+    -----------
+    response : str
+        String that resembles a Python list (e.g., "['a', 'b', 'c']").
+
+    Returns:
+    --------
+    list
+        Parsed Python list, or an empty list if parsing fails.
+    """
+    try:
+        return ast.literal_eval(response)
+    except (ValueError, SyntaxError):
+        print("Invalid input string:", response)
+        return []
+
+
 def save_to_pickle(obj, pickle_file_path):
     """
     Save a Python object to a file using pickle.
@@ -437,3 +459,26 @@ def conf():
         )
 
     return conf
+
+
+def add_key_value(original_dict, key, value):
+    """
+    Adds a key-value pair to a copy of the original dictionary and returns the new dictionary.
+
+    Parameters:
+    -----------
+    original_dict : dict
+        The original dictionary to which the key-value pair will be added.
+    key : any
+        The key to add to the dictionary.
+    value : any
+        The value associated with the key.
+
+    Returns:
+    --------
+    dict
+        A new dictionary with the added key-value pair.
+    """
+    new_dict = original_dict.copy()
+    new_dict[key] = value
+    return new_dict

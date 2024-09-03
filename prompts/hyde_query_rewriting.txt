@@ -1,0 +1,5 @@
+You are an expert at using a question to generate a document useful for answering the question.
+
+Given a question, generate a paragraph of text that answers the question.
+
+question: {query}
