@@ -44,16 +44,16 @@ compose:
 
 # Format py files
 format_py:
-	@isort $(PY_FILES)
-	@black $(PY_FILES)
+	@PYTHONPATH=./ conda run -n $(ENV_NAME) isort $(PY_FILES)
+	@PYTHONPATH=./ conda run -n $(ENV_NAME) black $(PY_FILES)
 
 # Linting py files
 lint_py:
-	@pylint $(PY_FILES) --exit-zero
+	@PYTHONPATH=./ conda run -n $(ENV_NAME) pylint $(PY_FILES) --exit-zero
 
 # Running unit_tests
 unit_tests:
-	@pytest ./tests
+	@PYTHONPATH=./ conda run -n $(ENV_NAME) pytest ./tests
 
 # Running integration_tests
 integration_tests:

@@ -1,8 +1,3 @@
-<!-- pgcli postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SETUP_HOST:$POSTGRES_PORT/$POSTGRES_DB -->
-
-<!-- go to: http://127.0.0.1:4200/flow-runs -->
-
-
 # Lex Fridman Podcast QA Assistant
 
 This project is a QA assistant built using retrieval-augmented generation (RAG) on Lex Fridman's podcast episodes.
@@ -195,7 +190,6 @@ Before getting started, ensure that the following dependencies are met:
 
 These pre-requisites ensure that your environment is set up correctly before running the project.
 
-
 ## Data
 
 The dataset is available as a [Hugging Face dataset](https://huggingface.co/datasets/Whispering-GPT/lex-fridman-podcast-transcript-audio) containing 351 episodes along with their transcripts. This is a significant advantage because it allows us to skip the time-consuming process of transcribing all the episodes. For example, transcribing a single episode on my local machine takes around 30 minutes. 
@@ -261,6 +255,152 @@ To start prefect server and a prefect worker:
 ```
 
 Go to: http://127.0.0.1:4200 to inspect UI (You should see one workpool, but no deployments nor runs yet).
+
+## Workflows
+
+To deploy all flows: 
+```
+> make redeploy_flows
+```
+To check deployemnts go to: http://127.0.0.1:4200
+
+### 1. (Re)Set Up Elasticsearch Index (`setup_es`)
+This workflow sets up Elasticsearch as the knowledge base for podcast transcriptions. The flow scheduling is `ad-hoc`.
+
+- **(Re)Create ES Index**: If `reindex_es==True`, the index is created with the name `$ES_INDEX_NAME`, as defined in `config/elasticsearch/index_settings.json`.
+  
+- **Automatic Speech Recognition (ASR)**: We use the `$ASR_MODEL=openai/whisper-small` model to transcribe episodes into text. To prevent truncation, input segments are limited to 0.4 minutes, after which the transcriptions are merged using regex to ensure accuracy. The transcription of a single episode takes approximately 25 minutes. Fortunately, the Hugging Face dataset already contains episode transcripts (`defacto=True`), saving processing time. I verified the accuracy by comparing the transcriptions of two episodes. For new mini-episodes, the ASR process is applied (`defacto=False`).
+
+- **Chunking**: Text is chunked using regex methods along with `en_core_web_sm` from `spacy`, with a maximum chunk length of 2000 characters (subject to optimization). A key consideration is that chunks should not end with questions, as questions are usually followed by their answers in interviews. This ensures that the question and its answer are retrieved together.
+
+- **Embedding Creation**: The `$EMBED_MODEL=nomic-embed-text` model (768 dimensions) is used to create embeddings for each chunk. The model is hosted on Ollama, which avoids the need for the large `sentence-transformers` library and its dependencies in the app container. Although this method is approximately 8x slower than using a GPU, it prevents model output discrepancies. When comparing the Hugging Face and Ollama model outputs, 95% of vectors had a cosine distance of less than 0.001, but 5% showed a significant difference (up to 0.9), which was unacceptable. This experiment is detailed in `notebooks/compare-same-model-hf-vs-ollama.ipynb`. Vectorizing >300k documents with Ollama takes ~4 hours, while the Hugging Face version takes ~0.5 hours.
+
+- **Indexing Documents**: Indexing ~300k documents in Elasticsearch takes approximately 40 minutes.
+
+To run deployment in defacto mode:
+```
+make reindex_es_defacto
+```
+
+### 2. (Re)Initialize Postgres Database (`init_db`)
+The Postgres database named `$POSTGRES_DB` is used to store the app's conversations and feedback. Additionally, the same Postgres instance hosts another database called `prefect` for Prefect metadata. The flow scheduling is `ad-hoc`.
+To check tables creation:
+```
+pgcli postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SETUP_HOST:$POSTGRES_PORT/$POSTGRES_DB
+> \l
+```
+
+- **Re(Create Database)**: This step ensures that the `$POSTGRES_DB` database is created or recreated if it already exists if `reinit_db==True`.
+  
+- **Re(Create Tables)**: All necessary tables, including those for conversations and feedback, are created or recreated if `reinit_db==True` within the `$POSTGRES_DB` database. Tables definition are defined in `utils/postgres.py`.
+
+To run deployment:
+```
+make reinit_db
+```
+
+### 3. (Re)Set up Grafana (`setup_grafana`)
+Grafana is used to monitor and visualize statistics related to the app, such as user feedback, OpenAI costs, response times, and more. The flow scheduling is `ad-hoc`.
+
+- **Generate Token**: A Grafana admin token is generated if it does not already exist, and the token is added to the `.env` file.
+
+- **(Re)Create Grafana Data Source**: If `reinit_grafana==True`, this step recreates the data source used to connect Grafana to the PostgreSQL database for monitoring purposes.
+
+- **(Re)Create Grafana Dashboard**: If `recreate_dashboards==True`, this step reads chart definitions (stored as JSON files in `config/grafana`) and recreates the Grafana dashboards. Each chart is defined in its own JSON file. To add more charts, simply place the corresponding JSON file in the directory and rerun the dashboard setup process.
+
+To run deployment in non-defacto mode for a single run (doesn't interfere with schedule):
+```
+make process_new_episodes_run
+```
+
+
+### 4. Check For New Episodes (`process_new_episodes`)
+This workflow checks for untracked episodes in `bucket/bucket_state.json`. If new episodes are found, they are indexed, and the bucket state is updated. This flow is scheduled to run every Sunday at midnight.
+
+- **Check for New Unindexed Episodes**: New episodes should be placed in the `bucket` directory as `bucket/[ep-no]`. If a new directory is found that is not tracked in the `bucket/bucket_state.json` file (as described in the data section), it triggers further actions.
+
+- **If New Episodes to Index are Found**: The `setup_es` flow is triggered for the new directories with Defacto Mode off. If no new episodes are found, no further action is taken.
+
+- **Update Bucket State**: If the `setup_es` flow successfully indexes the new episodes, the `bucket_state.json` file is updated to track the newly indexed episodes.
+
+To run deployment in defacto mode:
+```
+make resetup_grafana
+```
+
+
+## Questions Generation
+
+## Questions Generation
+
+Questions are generated from chunks to evaluate the performance of the retrieval/RAG system. A random sample of 250 chunks (out of >300k) was selected, where each chunk must contain at least 300 words to be considered. OpenAI's `gpt-4o-mini` model is prompted (using `prompts/questions_from_chunks.txt`) to generate self-sufficient questions that could be answered using the content of each chunk.
+
+An alternative method was previously attempted, which involved extracting questions using regex from chunks and then prompting the LLM to select self-sufficient ones and rephrase them. However, this approach yielded poor performance and was subsequently discarded.
+
+The full process of question extraction is documented in `notebooks/openai-generate-questions-from-chunks.ipynb`. The generated questions are stored in `data/generated_questions/questions.json`, and their vectorized versions are stored in `data/generated_embeddings/vectorized_questions.pkl`.
+
+## Retrieval Evaluation
+
+The evaluation of retrieval tests how precise the system is in retrieving documents (chunks) that answer the given questions. As mentioned in the previous section, each question is associated with a specific chunk. We use adjusted versions of Mean Reciprocal Rank (MRR) and Hit Rate (HR) to measure performance. For each question, five documents are retrieved.
+
+- **Hit Rate (HR)**: The percentage of times the correct document is captured within the 5-document result.
+  
+  Example:
+  - `[0, 0, 1, 0, 0] -> 1` 
+  - `[0, 0, 0, 0, 0] -> 0` 
+  - HR = 1/2
+
+- **Mean Reciprocal Rank (MRR)**: A modified version of MRR, where we divide by the rank of the document.
+
+  Example:
+  - `[0, 0, 1, 0, 0] -> 1/3`
+  - `[0, 1, 0, 0, 0] -> 1/2`
+  - MRR = `(1/3 + 1/2) / 2`
+
+The adjusted versions consider the same chunk as a hit, and the subsequent chunk in the original transcription is counted as a 1/2 hit (this is subject to further enhancement). If both documents are featured in the same 5 results, the HR is set to 1, and for MRR, `max([1 or 1/2]/rank)` is used. For more information, check `utils/evaluate.py`.
+
+| Search Method                  | HR        | MRR       | Adjusted HR | Adjusted MRR |
+|---------------------------------|-----------|-----------|-------------|--------------|
+| elastic_search_text             | 0.641026  | 0.503775  | 0.643162    | 0.505912     |
+| elastic_search_knn              | 0.705128  | 0.586111  | 0.722222    | 0.594017     |
+| elastic_search_hybrid_rrf       | 0.786325  | 0.671795  | 0.799145    | 0.680520     |
+
+For medium query size, response time increase from text to rrf is around 0.02 seconds per query, which is negligible.
+
+
+## Query Re-writing
+
+Query re-writing is used to enhance retrieval by rewriting the query (possibly multiple times) or generating a paragraph that could serve as an answer to the question (HyDE). The same metrics used for retrieval evaluation—Hit Rate (HR) and Mean Reciprocal Rank (MRR)—are applied here.
+
+For more details on query re-writing, check this [Colab Notebook](https://colab.research.google.com/drive/1-NT0_mmyoSnaDQJ1Zuo0XX613TG5lzjZ?usp=sharing#scrollTo=DmcuJ-1DyFTO).
+
+Both HyDE and Sub-queries techniques were tested (in combination with Hybrid RRF), but no improvement was observed over the baseline (Hybrid RRF without query re-writing). The query re-writing technique is costly in terms of both computational expense and response time. As a result, it was decided not to include it in the final RAG system of the app. You can find the details of the experiment in `notebooks/query-rewriting-assessment.ipynb`. Query re-writings are saved in `data/generated_rewriting/vectorized_questions_with_rewriting.pkl`.
+
+| Search Method         | Adjusted HR | Adjusted MRR |
+|-----------------------|-------------|--------------|
+| baseline              | 0.799145    | 0.680520     |
+| zero_shot             | 0.777778    | 0.629274     |
+| hyde                  | 0.794872    | 0.636930     |
+
+
+## RAG Evaluation
+
+This section evaluates the performance of the RAG system as a whole. Since we do not have true answers for the questions, we rely on a Large Language Model (LLM) as a judge to inspect the query, context, and answer to assess relevance. In the future, user feedback within the app will also contribute to the evaluation. Another metric that could be considered later is "Answer Consistency," but this is currently skipped due to its high cost. The LLM prompt used for this evaluation is stored in `prompts/llm_as_a_judge.txt` and is also used in the app for real-time answer evaluation. OpenAI's `gpt-mini-4o` model is used as the judge. You can find the experiment details in `notebooks/assess-retrieval-and-rag.ipynb`.
+
+- **Ollama/phi3**: Evaluated a single question. The answer was too long, took too much time, and was completely nonsensical.
+  
+- **Ollama/gemma:2b**: Evaluated a single question. The answer was shorter than phi3 and faster, but still nonsensical.
+  
+- **Ollama/llama3.1**: Evaluated a single question. The answer was shorter than phi3 and faster but worse than gemma:2b, and still nonsensical.
+  
+- **Ollama/gemma2:2b**: Evaluated a single question. The answer was longer than gemma:2b (making it a costlier evaluation) and still nonsensical.
+  
+- **OpenAI/gpt-3.5-turbo**: 
+  - Results: {'RELEVANT': 219, 'PARTLY_RELEVANT': 10, 'NON_RELEVANT': 5}
+
+- **OpenAI/gpt-4o-mini**: 
+  - Results: {'RELEVANT': 229, 'PARTLY_RELEVANT': 5}
+
 
 ## DO NOT FORGET TO
 ```
