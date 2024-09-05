@@ -323,13 +323,11 @@ This workflow checks for untracked episodes in `bucket/bucket_state.json`. If ne
 
 - **Update Bucket State**: If the `setup_es` flow successfully indexes the new episodes, the `bucket_state.json` file is updated to track the newly indexed episodes.
 
-To run deployment in defacto mode:
+To run deployment in non-defacto mode (make sure to untrack files from `bucket_state.json`):
 ```
-make resetup_grafana
+make process_new_episodes_run
 ```
 
-
-## Questions Generation
 
 ## Questions Generation
 
