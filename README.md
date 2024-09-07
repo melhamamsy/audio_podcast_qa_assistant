@@ -399,6 +399,29 @@ This section evaluates the performance of the RAG system as a whole. Since we do
 - **OpenAI/gpt-4o-mini**: 
   - Results: {'RELEVANT': 229, 'PARTLY_RELEVANT': 5}
 
+## Use The App
+
+After completing all the steps above successfully, you should have:
+
+1. An active Elasticsearch instance with an index containing podcast chunks and their embeddings.
+2. An active Ollama client with both the embedding and chat models.
+3. An active Postgres database to store conversations and feedback.
+4. An active Grafana instance with a datasource connection to the Postgres database for monitoring and visualizing conversations, feedback, etc.
+
+Now you can use the app by navigating to: [http://localhost:8501](http://localhost:8501).
+
+- Enter your question, and optionally the episode title (it doesn't need to be exact).
+- Select a search method from: `text`, `vector`, or `hybrid`. (Note: Hybrid is the best performing.)
+- Choose the model from the following options: 
+  - `ollama/gemma:2b`
+  - `openai/gpt-3.5-turbo`
+  - `openai/gpt-4o`
+  - `openai/gpt-4o-mini`
+- Submit your query, and once you receive a response, provide your feedback (+1/-1).
+- Check recent conversations and feedback stats at the bottom of the page.
+- You can try multiple questions and provide feedback for them. You can rely on the questions available in `data/generated_questions/questions.json`.
+
+To inspect the Grafana dashboard, go to: [http://localhost:3000](http://localhost:3000). You may need to adjust the selected timeframe in the dashboard for better visibility.
 
 ## DO NOT FORGET TO
 ```
